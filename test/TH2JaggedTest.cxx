@@ -3,21 +3,25 @@
 #include "TH2Jagged.h"
 
 #include "TFile.h"
+#include "TH2Poly.h"
 #include "TRandom3.h"
+
+#include <iostream>
 
 int main() {
 
-  std::vector<Int_t> NXBins = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-  std::vector<double> XLowEdges = {-1, -2, -3, -4, -5, -5, -4, -3, -2, -1};
-  std::vector<double> XUpEdges = {1, 2, 3, 4, 5, 5, 4, 3, 2, 1};
+  std::vector<Int_t> NXBins = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  std::vector<double> XLowEdges = {-1, -2, -3, -4, -5, -4, -3, -2, -1};
+  std::vector<double> XUpEdges = {1, 2, 3, 4, 5, 4, 3, 2, 1};
 
-  TH2D uni("uniform", "", 100, -5, 5, 100, -5, 5);
+  TH2D uni("uniform", "", 100, -5, 5, 100, -2.25, 2.25);
 
-  TH2DJagged jag("testjag", "some title; some x axis; some y axis; some z axis",
-                 NXBins.data(), XLowEdges.data(), XUpEdges.data(), 10, -5, 5);
-  TH2DJagged jag2("testjag2",
-                  "some title; some x axis; some y axis; some z axis",
-                  NXBins.data(), XLowEdges.data(), XUpEdges.data(), 10, -5, 5);
+  TH2JaggedD jag("testjag", "some title; some x axis; some y axis; some z axis",
+                 NXBins.data(), XLowEdges.data(), XUpEdges.data(), 9, -2.25,
+                 2.25);
+  TH2JaggedD jag2(
+      "testjag2", "some title; some x axis; some y axis; some z axis",
+      NXBins.data(), XLowEdges.data(), XUpEdges.data(), 9, -2.25, 2.25);
 
   NXBins.clear();
   XLowEdges.clear();
@@ -28,13 +32,13 @@ int main() {
     XUpEdges.push_back(5);
   }
 
-  TH2DJagged jaguni(
+  TH2JaggedD jaguni(
       "testjaguni", "some title; some x axis; some y axis; some z axis",
-      NXBins.data(), XLowEdges.data(), XUpEdges.data(), 100, -5, 5);
+      NXBins.data(), XLowEdges.data(), XUpEdges.data(), 100, -2.25, 2.25);
 
   for (size_t i = 0; i < 1000000; ++i) {
     double x = gRandom->Gaus(0, 2);
-    double y = gRandom->Gaus(0, 2);
+    double y = gRandom->Gaus(0, 1);
     jag.Fill(x, y);
     jaguni.Fill(x, y);
     uni.Fill(x, y);
