@@ -101,7 +101,10 @@ public:
 
   TAxis const *GetNonUniformAxis(Int_t gbin) const;
 
+  // Shuts up compiler warning but pulls methods that will do nothing into scope
+  using TH2::FindFixBin;
   Int_t FindFixBin(Double_t x, Double_t y) const;
+  bool IsFlowBin(Int_t gbin) const;
 
   void Scale(Double_t c = 1, Option_t *option = "");
 
@@ -125,16 +128,20 @@ public:
   void SetBinError(Int_t gbin, ST c);
   void SetBinError(Int_t binx, Int_t biny, ST c);
 
-  TH2Poly *ToTH2Poly() const;
-
   void Reset(Option_t *option = "");
+  void RecalculateErrors(Option_t *option = "");
 
   // Shuts up compiler warning but pulls methods that will do nothing into scope
   using TH2::Add;
   Bool_t Add(const TH2Jagged<TH2T> *h1, Double_t c1 = 1);
 
+  // Shuts up compiler warning but pulls methods that will do nothing into scope
+  using TH2::Clone;
   TObject *Clone(const char *newname = 0);
   void Draw(Option_t *option = "");
+
+  TH2T *ToUniformTH2(Option_t *option = "") const;
+  TH2Poly *ToTH2Poly() const;
 
   T1T *ToFlatTH1() const;
   void SetBinContentFromFlatTH1(T1T const *h);

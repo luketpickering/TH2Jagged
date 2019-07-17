@@ -17,6 +17,9 @@ TH2JaggedDict.cxx TH2JaggedDict_rdict.pcm: src/TH2Jagged.h src/TH2JaggedLinkdef.
 bin/TH2JaggedBinningTest: test/TH2JaggedBinningTest.cxx src/TH2Jagged.h lib/libTH2Jagged.so bin
 	g++ $< -o $@ -g -O0 -Isrc -Llib -lTH2Jagged `root-config --cflags --glibs`
 
+bin/TH2JaggedErrorTest: test/TH2JaggedErrorTest.cxx src/TH2Jagged.h lib/libTH2Jagged.so bin
+	g++ $< -o $@ -g -O0 -Isrc -Llib -lTH2Jagged `root-config --cflags --glibs`
+
 
 bin/TH2JaggedTest: test/TH2JaggedTest.cxx src/TH2Jagged.h lib/libTH2Jagged.so bin
 	g++ $< -o $@ -g -O0 -Isrc -Llib -lTH2Jagged `root-config --cflags --glibs`
@@ -27,7 +30,7 @@ bin/TH2JaggedWriteTest: test/TH2JaggedWriteTest.cxx src/TH2Jagged.h lib/libTH2Ja
 bin/TH2JaggedReadTest: test/TH2JaggedReadTest.cxx src/TH2Jagged.h lib/libTH2Jagged.so bin
 	g++ $< -o $@ -g -O0 -Isrc -Llib -lTH2Jagged `root-config --cflags --glibs`
 
-all: lib/libTH2Jagged.so bin/TH2JaggedTest bin/TH2JaggedWriteTest bin/TH2JaggedReadTest bin/TH2JaggedBinningTest
+all: lib/libTH2Jagged.so bin/TH2JaggedTest bin/TH2JaggedWriteTest bin/TH2JaggedReadTest bin/TH2JaggedBinningTest bin/TH2JaggedErrorTest
 
 clean:
 	-rm -rf TH2JaggedDict.cxx bin lib *.pcm *.o *.so

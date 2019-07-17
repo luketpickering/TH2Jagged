@@ -56,6 +56,10 @@ int main() {
   f.WriteTObject(&uni, "uni");
   TH2Poly *pu = jaguni.ToTH2Poly();
   f.WriteTObject(pu, "jaguni");
+  TH2D *th2jag_nw = jag.ToUniformTH2();
+  f.WriteTObject(th2jag_nw, "th2jag_nw");
+  TH2D *th2jag_w = jag.ToUniformTH2("width");
+  f.WriteTObject(th2jag_w, "th2jag_w");
 
   jag2.Add(&jag);
   TH2Poly *p2 = jag2.ToTH2Poly();

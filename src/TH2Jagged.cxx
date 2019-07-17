@@ -3,6 +3,7 @@
 
 #include "TH2Poly.h"
 
+#include <cmath>
 #include <iostream>
 #include <limits>
 #include <sstream>
@@ -31,12 +32,7 @@ template <class TH2T> void TH2Jagged<TH2T>::BuildBinMappings() {
     minNU = std::min(minNU, fNonUniformAxes[ubin].GetBinLowEdge(1));
     Int_t NNUBins = fNonUniformAxes[ubin].GetNbins();
     for (Int_t nubin = 0; nubin < (NNUBins + 2); ++nubin) {
-      JBinId binId{ubin, nubin};
-      std::cout << "GBin = " << GBin << " = {X: " << GetXAxisT(ubin, nubin)
-                << ", Y: " << GetYAxisT(ubin, nubin) << "}, {U: " << ubin
-                << ", NU: " << nubin << "}\n";
-
-      fBinMappingToFlat[binId] = GBin;
+      fBinMappingToFlat[JBinId{ubin, nubin}] = GBin;
       GBin++;
     }
     maxNU = std::max(maxNU, fNonUniformAxes[ubin].GetBinUpEdge(NNUBins));
@@ -53,7 +49,7 @@ template <class TH2T> void TH2Jagged<TH2T>::BuildBinMappings() {
 }
 
 template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t NUbins,
+TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t NUBins,
                            Double_t UMin, Double_t UMax, Int_t *NNUbins,
                            Double_t *NUMin, Double_t *NUMax, bool XIsUniform) {
   TH2::SetName(name);
@@ -61,22 +57,22 @@ TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t NUbins,
   fOTitle = title;
 
   fXIsUniform = XIsUniform;
-  fUniformAxis = TAxis(NUbins, UMin, UMax);
+  fUniformAxis = TAxis(NUBins, UMin, UMax);
 
   // Underflow axis is the same as the first bin
   fNonUniformAxes.push_back(TAxis(NNUbins[0], NUMin[0], NUMax[0]));
-  for (Int_t ubin = 0; ubin < NUbins; ++ubin) {
+  for (Int_t ubin = 0; ubin < NUBins; ++ubin) {
     fNonUniformAxes.push_back(TAxis(NNUbins[ubin], NUMin[ubin], NUMax[ubin]));
   }
   // Overflow axis is the same as the last bin
   fNonUniformAxes.push_back(
-      TAxis(NNUbins[NUbins - 1], NUMin[NUbins - 1], NUMax[NUbins - 1]));
+      TAxis(NNUbins[NUBins - 1], NUMin[NUBins - 1], NUMax[NUBins - 1]));
 
   BuildBinMappings();
 }
 
 template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t NUbins,
+TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t NUBins,
                            Double_t *UBinEdges, Int_t *NNUbins,
                            Double_t **NUBinEdges, bool XIsUniform) {
   TH2::SetName(name);
@@ -84,15 +80,15 @@ TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t NUbins,
   fOTitle = title;
 
   fXIsUniform = XIsUniform;
-  fUniformAxis = TAxis(NUbins, UBinEdges);
+  fUniformAxis = TAxis(NUBins, UBinEdges);
 
   // Underflow axis is the same as the first bin
   fNonUniformAxes.push_back(TAxis(NNUbins[0], NUBinEdges[0]));
-  for (Int_t ubin = 0; ubin < NUbins; ++ubin) {
-    fNonUniformAxes.push_back(TAxis(NNUbins[NUbins], NUBinEdges[NUbins]));
+  for (Int_t ubin = 0; ubin < NUBins; ++ubin) {
+    fNonUniformAxes.push_back(TAxis(NNUbins[NUBins], NUBinEdges[NUBins]));
   }
   // Overflow axis is the same as the last bin
-  fNonUniformAxes.push_back(TAxis(NNUbins[NUbins - 1], NUBinEdges[NUbins - 1]));
+  fNonUniformAxes.push_back(TAxis(NNUbins[NUBins - 1], NUBinEdges[NUBins - 1]));
 
   BuildBinMappings();
 }
@@ -104,7 +100,7 @@ bool TH2Jagged<TH2T>::CheckConsistency(const TH2Jagged *h) {
   }
 
   Int_t NNUAxes = fNonUniformAxes.size();
-  for (size_t ubin = 0; ubin < NNUAxes; ++ubin) {
+  for (Int_t ubin = 0; ubin < NNUAxes; ++ubin) {
     if (!TH1::CheckEqualAxes(&fNonUniformAxes[ubin],
                              &h->fNonUniformAxes[ubin])) {
       return false;
@@ -145,6 +141,8 @@ template <class TH2T>
 Int_t TH2Jagged<TH2T>::Fill(Double_t x, Double_t y, Double_t w) {
   Int_t gbin = FindFixBin(x, y);
   fBinContent[gbin] += w;
+  // From here:
+  // https://www.pp.rhul.ac.uk/~cowan/stat/notes/errors_with_weights.pdf
   fBinSumW2[gbin] += pow(w, 2);
   fBinError[gbin] = sqrt(fBinSumW2[gbin]);
 
@@ -184,9 +182,10 @@ void TH2Jagged<TH2T>::GetBinXYZ(Int_t gbin, Int_t &binx, Int_t &biny,
 }
 
 template <class TH2T>
-TAxis const *TH2Jagged<TH2T>::GetNonUniformAxis(Int_t ubin) const {
-  ubin = std::max(0, ubin);
-  ubin = std::min(ubin, Int_t(fNonUniformAxes.size() - 1));
+TAxis const *TH2Jagged<TH2T>::GetNonUniformAxis(Int_t gbin) const {
+  Int_t x, y, z;
+  GetBinXYZ(gbin, x, y, z);
+  Int_t ubin = GetUniformAxisT(x, y);
   return &fNonUniformAxes[ubin];
 }
 
@@ -309,6 +308,24 @@ template <class TH2T> void TH2Jagged<TH2T>::Reset(Option_t *option) {
   std::fill_n(fBinSumW2.begin(), 0, fBinSumW2.size());
 }
 
+template <typename T> struct sqrtfunct {
+  T operator()(T const &o) { return std::sqrt(o); }
+};
+
+template <class TH2T>
+void TH2Jagged<TH2T>::RecalculateErrors(Option_t *option) {
+  std::string opt(option);
+  std::transform(opt.begin(), opt.end(), opt.begin(), ::tolower);
+
+  if (!opt.size() || (opt.find("wpoisson") != std::string::npos)) {
+    std::transform(fBinSumW2.begin(), fBinSumW2.end(), fBinError.begin(),
+                   sqrtfunct<TH2Jagged<TH2T>::ST>());
+  } else if (opt.find("poisson") != std::string::npos) {
+    std::transform(fBinContent.begin(), fBinContent.end(), fBinError.begin(),
+                   sqrtfunct<TH2Jagged<TH2T>::ST>());
+  }
+}
+
 template <typename T> struct quad {
   T operator()(T const &l, T const &r) { return sqrt(l * l + r * r); }
 };
@@ -328,6 +345,134 @@ Bool_t TH2Jagged<TH2T>::Add(const TH2Jagged<TH2T> *h1, Double_t c1) {
   std::transform(fBinSumW2.begin(), fBinSumW2.end(), h1->fBinSumW2.begin(),
                  fBinSumW2.begin(), std::plus<TH2Jagged<TH2T>::ST>());
   return true;
+}
+
+template <class TH2T> bool TH2Jagged<TH2T>::IsFlowBin(Int_t gbin) const {
+  Int_t x, y, z;
+  GetBinXYZ(gbin, x, y, z);
+  Int_t ubin = GetUniformAxisT(x, y);
+  Int_t nubin = GetNonUniformAxisT(x, y);
+
+  return ((ubin == 0) || (ubin == (fUniformAxis.GetNbins() + 1)) ||
+          (nubin == 0) || (nubin == (fNonUniformAxes[ubin].GetNbins() + 1)));
+}
+
+template <class TH2T>
+TH2T *TH2Jagged<TH2T>::ToUniformTH2(Option_t *option) const {
+  std::string opt = option;
+  std::transform(opt.begin(), opt.end(), opt.begin(), ::tolower);
+
+  // BY default should spread events between sub bins, but if it is a width
+  // histogram, then the ratio of bin widths has already be accounted for
+  bool doWidth = true;
+  if (opt.find("width") != std::string::npos) {
+    doWidth = false;
+  }
+
+  std::vector<double> UBins;
+  for (int ubin = 1; ubin < (fUniformAxis.GetNbins() + 1); ++ubin) {
+    UBins.push_back(fUniformAxis.GetBinLowEdge(ubin));
+  }
+  UBins.push_back(fUniformAxis.GetBinUpEdge(fUniformAxis.GetNbins()));
+
+  std::vector<double> NUBins;
+  NUBins.push_back(GetNonUniformAxisT(fMinX, fMinY));
+  double cedge = NUBins.back();
+  while (true) {
+    for (int ubin = 1; ubin < (fUniformAxis.GetNbins() + 1); ++ubin) {
+      for (int nubin = 1; nubin < (fNonUniformAxes[ubin].GetNbins() + 1);
+           ++nubin) {
+        // std::cout << "x: " << GetXAxisT(ubin, nubin)
+        //           << ", y: " << GetYAxisT(ubin, nubin) << " low edge = "
+        //           << fNonUniformAxes[ubin].GetBinLowEdge(nubin) << std::endl;
+        if (fNonUniformAxes[ubin].GetBinLowEdge(nubin) > NUBins.back()) {
+
+          if (cedge != NUBins.back()) {
+            cedge = std::min(cedge, fNonUniformAxes[ubin].GetBinLowEdge(nubin));
+          } else {
+            cedge = fNonUniformAxes[ubin].GetBinLowEdge(nubin);
+          }
+
+          // std::cout << "  --NCE " << cedge << " (" << NUBins.back() << ")"
+          //           << std::endl;
+          break;
+        }
+      }
+      // std::cout << "x: " << GetXAxisT(ubin, fNonUniformAxes[ubin].GetNbins())
+      //           << ", y: " << GetYAxisT(ubin,
+      //           fNonUniformAxes[ubin].GetNbins())
+      //           << " up edge = "
+      //           << fNonUniformAxes[ubin].GetBinUpEdge(
+      //                  fNonUniformAxes[ubin].GetNbins())
+      //           << std::endl;
+      if (fNonUniformAxes[ubin].GetBinUpEdge(fNonUniformAxes[ubin].GetNbins()) >
+          NUBins.back()) {
+
+        if (cedge != NUBins.back()) {
+          cedge = std::min(cedge, fNonUniformAxes[ubin].GetBinUpEdge(
+                                      fNonUniformAxes[ubin].GetNbins()));
+        } else {
+          cedge = fNonUniformAxes[ubin].GetBinUpEdge(
+              fNonUniformAxes[ubin].GetNbins());
+        }
+
+        // std::cout << "  --NCE " << cedge << " (" << NUBins.back() << ")"
+        //           << std::endl;
+      }
+    }
+    if (cedge != NUBins.back()) {
+      NUBins.push_back(cedge);
+      std::cout << "--NE: " << cedge << std::endl;
+    } else {
+      break;
+    }
+  }
+
+  std::vector<double> *XBins = GetXAxisT(&UBins, &NUBins);
+  std::vector<double> *YBins = GetYAxisT(&UBins, &NUBins);
+
+  std::stringstream ss("");
+  ss << TH2::GetName() << "_th2";
+
+  TH2T *ret = new TH2T(ss.str().c_str(), fOTitle.c_str(), (XBins->size() - 1),
+                       XBins->data(), (YBins->size() - 1), YBins->data());
+
+  for (Int_t xb_it = 1; xb_it < (ret->GetXaxis()->GetNbins() + 1); ++xb_it) {
+    for (Int_t yb_it = 1; yb_it < (ret->GetYaxis()->GetNbins() + 1); ++yb_it) {
+      double xc = ret->GetXaxis()->GetBinCenter(xb_it);
+      double yc = ret->GetYaxis()->GetBinCenter(yb_it);
+
+      Int_t gbin = FindFixBin(xc, yc);
+      if (IsFlowBin(gbin)) {
+        continue;
+      }
+
+      double ws = 1;
+      if (doWidth) {
+        Int_t x, y, z;
+        GetBinXYZ(gbin, x, y, z);
+        Int_t ubin = GetUniformAxisT(x, y);
+        Int_t nubin = GetNonUniformAxisT(x, y);
+
+        double jag_bw = (fNonUniformAxes[ubin].GetBinUpEdge(nubin) -
+                         fNonUniformAxes[ubin].GetBinLowEdge(nubin)) *
+                        (fUniformAxis.GetBinUpEdge(ubin) -
+                         fUniformAxis.GetBinLowEdge(ubin));
+
+        double uni_bw = (ret->GetXaxis()->GetBinUpEdge(xb_it) -
+                         ret->GetXaxis()->GetBinLowEdge(xb_it)) *
+                        (ret->GetYaxis()->GetBinUpEdge(yb_it) -
+                         ret->GetYaxis()->GetBinLowEdge(yb_it));
+
+        ws = uni_bw / jag_bw;
+      }
+
+      Int_t rgbin = ret->GetBin(xb_it, yb_it);
+      ret->SetBinContent(rgbin, fBinContent[gbin] * ws);
+      ret->SetBinError(rgbin, 0);
+    }
+  }
+  return ret;
 }
 
 template <class TH2T>
