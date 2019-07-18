@@ -40,6 +40,10 @@ include(${CMAKE_SOURCE_DIR}/cmake/c++CompilerSetup.cmake)
 
 add_subdirectory(src)
 
+if(DEFINED DO_TEST AND NOT "${DO_TEST} " STREQUAL " ")
+  add_subdirectory(test)
+endif()
+
 configure_file(cmake/setup.sh.in
   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" @ONLY)
 install(FILES

@@ -48,7 +48,8 @@ LIST(APPEND ROOT_LIBS
   Hist
   Graf
   Gpad
-  Rint)
+  Rint
+  MathCore)
 
 cmessage ( STATUS "[ROOT]: root-config --version: ${ROOT_VERSION} ")
 cmessage ( STATUS "[ROOT]: root-config --cflags : ${ROOT_CXX_FLAGS} ")
