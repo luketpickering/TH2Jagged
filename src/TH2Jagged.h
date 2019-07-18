@@ -67,6 +67,11 @@ template <class TH2T> class TH2Jagged : public TH2 {
     return fXIsUniform ? nu : u;
   }
 
+  bool CheckConsistency(const TH2Jagged *h);
+
+public:
+  TH2Jagged();
+
   TH2Jagged(const char *name, const char *title, Int_t NUbins, Double_t UMin,
             Double_t UMax, Int_t *NNUbins, Double_t *NUMin, Double_t *NUMax,
             bool XIsUniform);
@@ -75,10 +80,6 @@ template <class TH2T> class TH2Jagged : public TH2 {
             Double_t *UBinEdges, Int_t *NNUbins, Double_t **NUBinEdges,
             bool XIsUniform);
 
-  bool CheckConsistency(const TH2Jagged *h);
-
-public:
-  TH2Jagged();
   TH2Jagged(const char *name, const char *title, Int_t NXbins, Double_t XMin,
             Double_t XMax, Int_t *NYbins, Double_t *YMin, Double_t *YMax);
 
