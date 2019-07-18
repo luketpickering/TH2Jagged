@@ -49,9 +49,10 @@ template <class TH2T> void TH2Jagged<TH2T>::BuildBinMappings() {
 }
 
 template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t NUBins,
-                           Double_t UMin, Double_t UMax, Int_t *NNUbins,
-                           Double_t *NUMin, Double_t *NUMax, bool XIsUniform) {
+TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NUBins,
+                           Double_t UMin, Double_t UMax, Int_t const *NNUbins,
+                           Double_t const *NUMin, Double_t const *NUMax,
+                           bool XIsUniform) {
   TH2::SetName(name);
   TH2::SetTitle(title);
   fOTitle = title;
@@ -72,9 +73,9 @@ TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t NUBins,
 }
 
 template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t NUBins,
-                           Double_t *UBinEdges, Int_t *NNUbins,
-                           Double_t **NUBinEdges, bool XIsUniform) {
+TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NUBins,
+                           Double_t const *UBinEdges, Int_t const *NNUbins,
+                           Double_t const **NUBinEdges, bool XIsUniform) {
   TH2::SetName(name);
   TH2::SetTitle(title);
   fOTitle = title;
@@ -111,27 +112,28 @@ bool TH2Jagged<TH2T>::CheckConsistency(const TH2Jagged *h) {
 
 template <class TH2T> TH2Jagged<TH2T>::TH2Jagged() {}
 template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t NXbins,
-                           Double_t XMin, Double_t XMax, Int_t *NYbins,
-                           Double_t *YMin, Double_t *YMax)
+TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NXbins,
+                           Double_t XMin, Double_t XMax, Int_t const *NYbins,
+                           Double_t const *YMin, Double_t const *YMax)
     : TH2Jagged(name, title, NXbins, XMin, XMax, NYbins, YMin, YMax, true) {}
 
 template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t *NXbins,
-                           Double_t *XMin, Double_t *XMax, Int_t NYbins,
-                           Double_t YMin, Double_t YMax)
+TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title,
+                           Int_t const *NXbins, Double_t const *XMin,
+                           Double_t const *XMax, Int_t NYbins, Double_t YMin,
+                           Double_t YMax)
     : TH2Jagged(name, title, NYbins, YMin, YMax, NXbins, XMin, XMax, false) {}
 
 template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t NXbins,
-                           Double_t *XBinEdges, Int_t *NYbins,
-                           Double_t **YBinEdges)
+TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NXbins,
+                           Double_t const *XBinEdges, Int_t const *NYbins,
+                           Double_t const **YBinEdges)
     : TH2Jagged(name, title, NXbins, XBinEdges, NYbins, YBinEdges, true) {}
 
 template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(const char *name, const char *title, Int_t *NXbins,
-                           Double_t **XBinEdges, Int_t NYbins,
-                           Double_t *YBinEdges)
+TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title,
+                           Int_t const *NXbins, Double_t const **XBinEdges,
+                           Int_t NYbins, Double_t const *YBinEdges)
     : TH2Jagged(name, title, NYbins, YBinEdges, NXbins, XBinEdges, false) {}
 
 template <class TH2T> Int_t TH2Jagged<TH2T>::Fill(Double_t x, Double_t y) {
@@ -139,7 +141,7 @@ template <class TH2T> Int_t TH2Jagged<TH2T>::Fill(Double_t x, Double_t y) {
 }
 template <class TH2T>
 Int_t TH2Jagged<TH2T>::Fill(Double_t x, Double_t y, Double_t w) {
-  return FillKnownBin(FindFixBin(x, y), w)
+  return FillKnownBin(FindFixBin(x, y), w);
 }
 
 template <class TH2T>
@@ -527,7 +529,7 @@ void TH2Jagged<TH2T>::SetBinContentFromFlatTH1(T1T const *h) {
   }
 }
 
-template <class TH2T> TObject *TH2Jagged<TH2T>::Clone(const char *newname) {
+template <class TH2T> TObject *TH2Jagged<TH2T>::Clone(char const *newname) {
   TH2Jagged<TH2T> *n = new TH2Jagged<TH2T>();
 
   n->fBinMappingToFlat = fBinMappingToFlat;

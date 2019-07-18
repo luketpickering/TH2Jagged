@@ -72,25 +72,29 @@ template <class TH2T> class TH2Jagged : public TH2 {
 public:
   TH2Jagged();
 
-  TH2Jagged(const char *name, const char *title, Int_t NUbins, Double_t UMin,
-            Double_t UMax, Int_t *NNUbins, Double_t *NUMin, Double_t *NUMax,
-            bool XIsUniform);
+  TH2Jagged(char const *name, char const *title, Int_t NUbins, Double_t UMin,
+            Double_t UMax, Int_t const *NNUbins, Double_t const *NUMin,
+            Double_t const *NUMax, bool XIsUniform);
 
-  TH2Jagged(const char *name, const char *title, Int_t NUbins,
-            Double_t *UBinEdges, Int_t *NNUbins, Double_t **NUBinEdges,
-            bool XIsUniform);
+  TH2Jagged(char const *name, char const *title, Int_t NUbins,
+            Double_t const *UBinEdges, Int_t const *NNUbins,
+            Double_t const **NUBinEdges, bool XIsUniform);
 
-  TH2Jagged(const char *name, const char *title, Int_t NXbins, Double_t XMin,
-            Double_t XMax, Int_t *NYbins, Double_t *YMin, Double_t *YMax);
+  TH2Jagged(char const *name, char const *title, Int_t NXbins, Double_t XMin,
+            Double_t XMax, Int_t const *NYbins, Double_t const *YMin,
+            Double_t const *YMax);
 
-  TH2Jagged(const char *name, const char *title, Int_t *NXbins, Double_t *XMin,
-            Double_t *XMax, Int_t NYbins, Double_t YMin, Double_t YMax);
+  TH2Jagged(char const *name, char const *title, Int_t const *NXbins,
+            Double_t const *XMin, Double_t const *XMax, Int_t NYbins,
+            Double_t YMin, Double_t YMax);
 
-  TH2Jagged(const char *name, const char *title, Int_t NXbins,
-            Double_t *XBinEdges, Int_t *NYbins, Double_t **YBinEdges);
+  TH2Jagged(char const *name, char const *title, Int_t NXbins,
+            Double_t const *XBinEdges, Int_t const *NYbins,
+            Double_t const **YBinEdges);
 
-  TH2Jagged(const char *name, const char *title, Int_t *NXbins,
-            Double_t **XBinEdges, Int_t NYbins, Double_t *YBinEdges);
+  TH2Jagged(char const *name, char const *title, Int_t const *NXbins,
+            Double_t const **XBinEdges, Int_t NYbins,
+            Double_t const *YBinEdges);
 
   // Shuts up compiler warning but pulls methods that will do nothing into scope
   using TH2::Fill;
@@ -139,7 +143,7 @@ public:
 
   // Shuts up compiler warning but pulls methods that will do nothing into scope
   using TH2::Clone;
-  TObject *Clone(const char *newname = 0);
+  TObject *Clone(char const *newname = 0);
   void Draw(Option_t *option = "");
 
   TH2T *ToUniformTH2(Option_t *option = "") const;
