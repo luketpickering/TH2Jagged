@@ -137,7 +137,7 @@ public:
   void Reset(Option_t *option = "");
   void RecalculateErrors(Option_t *option = "");
 
-  Double_t Integral(Option_t *option = "");
+  Double_t Integral(Option_t *option = "") const;
 
   // Shuts up compiler warning but pulls methods that will do nothing into scope
   using TH2::Add;

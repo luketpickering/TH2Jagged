@@ -367,7 +367,7 @@ template <class TH2T> bool TH2Jagged<TH2T>::IsFlowBin(Int_t gbin) const {
 }
 
 template <class TH2T>
-Double_t TH2Jagged<TH2T>::Integral(Option_t *option) {
+Double_t TH2Jagged<TH2T>::Integral(Option_t *option) const {
   std::string opt = option;
   std::transform(opt.begin(), opt.end(), opt.begin(), ::tolower);
 
