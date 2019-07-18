@@ -367,6 +367,40 @@ template <class TH2T> bool TH2Jagged<TH2T>::IsFlowBin(Int_t gbin) const {
 }
 
 template <class TH2T>
+Double_t TH2Jagged<TH2T>::Integral(Option_t *option) {
+  std::string opt = option;
+  std::transform(opt.begin(), opt.end(), opt.begin(), ::tolower);
+
+  bool doWidth = false;
+  if (opt.find("width") != std::string::npos) {
+    doWidth = true;
+  }
+
+  Double_t integ = 0;
+
+  for (Int_t ubin = 1; ubin < (fUniformAxis.GetNbins() + 1); ++ubin) {
+    std::pair<double, double> ubinedges{fUniformAxis.GetBinLowEdge(ubin),
+                                        fUniformAxis.GetBinUpEdge(ubin)};
+    for (Int_t nubin = 1; nubin < (fNonUniformAxes[ubin].GetNbins() + 1);
+         ++nubin) {
+      std::pair<double, double> nubinedges{
+          fNonUniformAxes[ubin].GetBinLowEdge(nubin),
+          fNonUniformAxes[ubin].GetBinUpEdge(nubin)};
+
+      Int_t gbin = fBinMappingToFlat.at({ubin, nubin});
+
+      double bc = fBinContent[gbin];
+      double ws = doWidth ? (ubinedges.second - ubinedges.first) *
+                                (nubinedges.second - nubinedges.first)
+                          : 1;
+
+      integ += (bc * ws);
+    }
+  }
+  return integ;
+}
+
+template <class TH2T>
 TH2T *TH2Jagged<TH2T>::ToUniformTH2(Option_t *option) const {
   std::string opt = option;
   std::transform(opt.begin(), opt.end(), opt.begin(), ::tolower);

@@ -137,6 +137,8 @@ public:
   void Reset(Option_t *option = "");
   void RecalculateErrors(Option_t *option = "");
 
+  Double_t Integral(Option_t *option = "");
+
   // Shuts up compiler warning but pulls methods that will do nothing into scope
   using TH2::Add;
   Bool_t Add(const TH2Jagged<TH2T> *h1, Double_t c1 = 1);
