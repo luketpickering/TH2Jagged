@@ -59,6 +59,7 @@ TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NUBins,
 
   fXIsUniform = XIsUniform;
   fUniformAxis = TAxis(NUBins, UMin, UMax);
+  (fXIsUniform ? fXaxis : fYaxis) = fUniformAxis;
 
   // Underflow axis is the same as the first bin
   fNonUniformAxes.push_back(TAxis(NNUbins[0], NUMin[0], NUMax[0]));
@@ -82,6 +83,7 @@ TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NUBins,
 
   fXIsUniform = XIsUniform;
   fUniformAxis = TAxis(NUBins, UBinEdges);
+  (fXIsUniform ? fXaxis : fYaxis) = fUniformAxis;
 
   // Underflow axis is the same as the first bin
   fNonUniformAxes.push_back(TAxis(NNUbins[0], NUBinEdges[0]));
