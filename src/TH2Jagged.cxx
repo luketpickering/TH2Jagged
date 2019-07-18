@@ -88,7 +88,7 @@ TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NUBins,
   // Underflow axis is the same as the first bin
   fNonUniformAxes.push_back(TAxis(NNUbins[0], NUBinEdges[0]));
   for (Int_t ubin = 0; ubin < NUBins; ++ubin) {
-    fNonUniformAxes.push_back(TAxis(NNUbins[NUBins], NUBinEdges[NUBins]));
+    fNonUniformAxes.push_back(TAxis(NNUbins[ubin], NUBinEdges[ubin]));
   }
   // Overflow axis is the same as the last bin
   fNonUniformAxes.push_back(TAxis(NNUbins[NUBins - 1], NUBinEdges[NUBins - 1]));
