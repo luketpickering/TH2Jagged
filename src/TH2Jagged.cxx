@@ -139,7 +139,11 @@ template <class TH2T> Int_t TH2Jagged<TH2T>::Fill(Double_t x, Double_t y) {
 }
 template <class TH2T>
 Int_t TH2Jagged<TH2T>::Fill(Double_t x, Double_t y, Double_t w) {
-  Int_t gbin = FindFixBin(x, y);
+  return FillKnownBin(FindFixBin(x, y), w)
+}
+
+template <class TH2T>
+Int_t TH2Jagged<TH2T>::FillKnownBin(Int_t gbin, Double_t w) {
   fBinContent[gbin] += w;
   // From here:
   // https://www.pp.rhul.ac.uk/~cowan/stat/notes/errors_with_weights.pdf
@@ -148,6 +152,7 @@ Int_t TH2Jagged<TH2T>::Fill(Double_t x, Double_t y, Double_t w) {
 
   return fBinContent[gbin];
 }
+
 template <class TH2T>
 Int_t TH2Jagged<TH2T>::GetBin(Int_t binx, Int_t biny, Int_t) const {
   binx = std::max(0, binx);
