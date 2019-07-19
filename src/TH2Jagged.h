@@ -109,7 +109,7 @@ public:
 
   // Shuts up compiler warning but pulls methods that will do nothing into scope
   using TH2::FindFixBin;
-  Int_t FindFixBin(Double_t x, Double_t y) const;
+  Int_t FindFixBin(Double_t x, Double_t y, Double_t z=0) const;
   bool IsFlowBin(Int_t gbin) const;
 
   void Scale(Double_t c = 1, Option_t *option = "");

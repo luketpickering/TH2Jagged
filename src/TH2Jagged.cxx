@@ -200,7 +200,7 @@ TAxis const *TH2Jagged<TH2T>::GetNonUniformAxis(Int_t gbin) const {
 }
 
 template <class TH2T>
-Int_t TH2Jagged<TH2T>::FindFixBin(Double_t x, Double_t y) const {
+Int_t TH2Jagged<TH2T>::FindFixBin(Double_t x, Double_t y, Double_t) const {
   Double_t u = GetUniformAxisT(x, y);
   Double_t nu = GetNonUniformAxisT(x, y);
 
