@@ -12,16 +12,14 @@ class TH2Poly;
 
 template <typename THT> struct TH2TypeTraits {};
 
-template <> struct TH2TypeTraits<TH2D> {
+template <> struct TH2TypeTraits<Double_t> {
   using TH1Type = TH1D;
   using TH2Type = TH2D;
-  using StorageType = Double_t;
 };
 
-template <> struct TH2TypeTraits<TH2F> {
+template <> struct TH2TypeTraits<Float_t> {
   using TH1Type = TH1F;
   using TH2Type = TH2F;
-  using StorageType = float;
 };
 
 struct JBinId {
@@ -30,11 +28,12 @@ struct JBinId {
 };
 bool operator<(JBinId const &l, JBinId const &r);
 
-template <class TH2T> class TH2Jagged : public TH2 {
+template <typename ST> class TH2Jagged : public TH2 {
 
-  using T1T = typename TH2TypeTraits<TH2T>::TH1Type;
-  using ST = typename TH2TypeTraits<TH2T>::StorageType;
+  using T1T = typename TH2TypeTraits<ST>::TH1Type;
+  using T2T = typename TH2TypeTraits<ST>::TH2Type;
 
+public:
   std::map<JBinId, Int_t> fBinMappingToFlat;
 
   TAxis fUniformAxis;
@@ -48,6 +47,7 @@ template <class TH2T> class TH2Jagged : public TH2 {
   double fMinY, fMaxY;
   std::string fOTitle;
 
+private:
   // Builds mappings between 'flat' and X/Y bin numbers
   void BuildBinMappings();
 
@@ -111,7 +111,7 @@ public:
 
   // Shuts up compiler warning but pulls methods that will do nothing into scope
   using TH2::FindFixBin;
-  Int_t FindFixBin(Double_t x, Double_t y, Double_t z=0) const;
+  Int_t FindFixBin(Double_t x, Double_t y, Double_t z = 0) const;
   bool IsFlowBin(Int_t gbin) const;
 
   void Scale(Double_t c = 1, Option_t *option = "");
@@ -143,14 +143,14 @@ public:
 
   // Shuts up compiler warning but pulls methods that will do nothing into scope
   using TH2::Add;
-  Bool_t Add(const TH2Jagged<TH2T> *h1, Double_t c1 = 1);
+  Bool_t Add(const TH2Jagged<ST> *h1, Double_t c1 = 1);
 
   // Shuts up compiler warning but pulls methods that will do nothing into scope
   using TH2::Clone;
   TObject *Clone(char const *newname = 0);
   void Draw(Option_t *option = "");
 
-  TH2T *ToUniformTH2(Option_t *option = "") const;
+  T2T *ToUniformTH2(Option_t *option = "") const;
   TH2Poly *ToTH2Poly() const;
 
   T1T *ToFlatTH1() const;
@@ -161,10 +161,12 @@ public:
   ClassDef(TH2Jagged, 1);
 };
 
-template class TH2Jagged<TH2D>;
-template class TH2Jagged<TH2F>;
+template class TH2Jagged<Double_t>;
+template class TH2Jagged<Float_t>;
 
-using TH2JaggedD = TH2Jagged<TH2D>;
-using TH2JaggedF = TH2Jagged<TH2F>;
+using TH2JaggedD = TH2Jagged<Double_t>;
+using TH2JaggedF = TH2Jagged<Float_t>;
+
+TH2JaggedF *ToTHJaggedF(TH2JaggedD const *d, char const *newname = 0);
 
 #endif

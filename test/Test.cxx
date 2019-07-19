@@ -73,6 +73,8 @@ int main() {
   jag.SetBinContentFromFlatTH1(t1);
   TH2Poly *p4reset = jag.ToTH2Poly();
   f.WriteTObject(p4reset, "p4reset");
+  TH2JaggedF *jagf = ToTHJaggedF(&jag);
+  f.WriteTObject(jagf, "jagf");
 
   bool didthrow = false;
   try {

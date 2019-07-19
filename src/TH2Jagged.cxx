@@ -19,7 +19,7 @@ bool operator<(JBinId const &l, JBinId const &r) {
   return (l.NonUniBin < r.NonUniBin);
 }
 
-template <class TH2T> void TH2Jagged<TH2T>::BuildBinMappings() {
+template <typename ST> void TH2Jagged<ST>::BuildBinMappings() {
   Int_t GBin = 0;
 
   double minU = fUniformAxis.GetBinLowEdge(1);
@@ -49,11 +49,11 @@ template <class TH2T> void TH2Jagged<TH2T>::BuildBinMappings() {
   std::fill_n(std::back_inserter(fBinSumW2), GBin, 0);
 }
 
-template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NUBins,
-                           Double_t UMin, Double_t UMax, Int_t const *NNUbins,
-                           Double_t const *NUMin, Double_t const *NUMax,
-                           bool XIsUniform) {
+template <typename ST>
+TH2Jagged<ST>::TH2Jagged(char const *name, char const *title, Int_t NUBins,
+                         Double_t UMin, Double_t UMax, Int_t const *NNUbins,
+                         Double_t const *NUMin, Double_t const *NUMax,
+                         bool XIsUniform) {
   TH2::SetName(name);
   TH2::SetTitle(title);
   fOTitle = title;
@@ -74,10 +74,10 @@ TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NUBins,
   BuildBinMappings();
 }
 
-template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NUBins,
-                           Double_t const *UBinEdges, Int_t const *NNUbins,
-                           Double_t const **NUBinEdges, bool XIsUniform) {
+template <typename ST>
+TH2Jagged<ST>::TH2Jagged(char const *name, char const *title, Int_t NUBins,
+                         Double_t const *UBinEdges, Int_t const *NNUbins,
+                         Double_t const **NUBinEdges, bool XIsUniform) {
   TH2::SetName(name);
   TH2::SetTitle(title);
   fOTitle = title;
@@ -97,8 +97,8 @@ TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NUBins,
   BuildBinMappings();
 }
 
-template <class TH2T>
-bool TH2Jagged<TH2T>::CheckConsistency(const TH2Jagged *h) {
+template <typename ST>
+bool TH2Jagged<ST>::CheckConsistency(const TH2Jagged *h) {
   if (!TH1::CheckEqualAxes(&fUniformAxis, &h->fUniformAxis)) {
     return false;
   }
@@ -113,42 +113,42 @@ bool TH2Jagged<TH2T>::CheckConsistency(const TH2Jagged *h) {
   return true;
 }
 
-template <class TH2T> TH2Jagged<TH2T>::TH2Jagged() {}
-template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NXbins,
-                           Double_t XMin, Double_t XMax, Int_t const *NYbins,
-                           Double_t const *YMin, Double_t const *YMax)
+template <typename ST> TH2Jagged<ST>::TH2Jagged() {}
+template <typename ST>
+TH2Jagged<ST>::TH2Jagged(char const *name, char const *title, Int_t NXbins,
+                         Double_t XMin, Double_t XMax, Int_t const *NYbins,
+                         Double_t const *YMin, Double_t const *YMax)
     : TH2Jagged(name, title, NXbins, XMin, XMax, NYbins, YMin, YMax, true) {}
 
-template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title,
-                           Int_t const *NXbins, Double_t const *XMin,
-                           Double_t const *XMax, Int_t NYbins, Double_t YMin,
-                           Double_t YMax)
+template <typename ST>
+TH2Jagged<ST>::TH2Jagged(char const *name, char const *title,
+                         Int_t const *NXbins, Double_t const *XMin,
+                         Double_t const *XMax, Int_t NYbins, Double_t YMin,
+                         Double_t YMax)
     : TH2Jagged(name, title, NYbins, YMin, YMax, NXbins, XMin, XMax, false) {}
 
-template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title, Int_t NXbins,
-                           Double_t const *XBinEdges, Int_t const *NYbins,
-                           Double_t const **YBinEdges)
+template <typename ST>
+TH2Jagged<ST>::TH2Jagged(char const *name, char const *title, Int_t NXbins,
+                         Double_t const *XBinEdges, Int_t const *NYbins,
+                         Double_t const **YBinEdges)
     : TH2Jagged(name, title, NXbins, XBinEdges, NYbins, YBinEdges, true) {}
 
-template <class TH2T>
-TH2Jagged<TH2T>::TH2Jagged(char const *name, char const *title,
-                           Int_t const *NXbins, Double_t const **XBinEdges,
-                           Int_t NYbins, Double_t const *YBinEdges)
+template <typename ST>
+TH2Jagged<ST>::TH2Jagged(char const *name, char const *title,
+                         Int_t const *NXbins, Double_t const **XBinEdges,
+                         Int_t NYbins, Double_t const *YBinEdges)
     : TH2Jagged(name, title, NYbins, YBinEdges, NXbins, XBinEdges, false) {}
 
-template <class TH2T> Int_t TH2Jagged<TH2T>::Fill(Double_t x, Double_t y) {
+template <typename ST> Int_t TH2Jagged<ST>::Fill(Double_t x, Double_t y) {
   return Fill(x, y, 1);
 }
-template <class TH2T>
-Int_t TH2Jagged<TH2T>::Fill(Double_t x, Double_t y, Double_t w) {
-  return FillKnownBin(TH2Jagged<TH2T>::FindFixBin(x, y), w);
+template <typename ST>
+Int_t TH2Jagged<ST>::Fill(Double_t x, Double_t y, Double_t w) {
+  return FillKnownBin(TH2Jagged<ST>::FindFixBin(x, y), w);
 }
 
-template <class TH2T>
-Int_t TH2Jagged<TH2T>::FillKnownBin(Int_t gbin, Double_t w) {
+template <typename ST>
+Int_t TH2Jagged<ST>::FillKnownBin(Int_t gbin, Double_t w) {
   fBinContent[gbin] += w;
   // From here:
   // https://www.pp.rhul.ac.uk/~cowan/stat/notes/errors_with_weights.pdf
@@ -158,12 +158,13 @@ Int_t TH2Jagged<TH2T>::FillKnownBin(Int_t gbin, Double_t w) {
   return fBinContent[gbin];
 }
 
-template <class TH2T> Int_t TH2Jagged<TH2T>::GetNbins() const {
-  return fBinContent.size();
+template <typename ST> Int_t TH2Jagged<ST>::GetNbins() const {
+  // This allows loops that look like TH1 loops
+  return (fBinContent.size() - 2);
 }
 
-template <class TH2T>
-Int_t TH2Jagged<TH2T>::GetBin(Int_t binx, Int_t biny, Int_t) const {
+template <typename ST>
+Int_t TH2Jagged<ST>::GetBin(Int_t binx, Int_t biny, Int_t) const {
   binx = std::max(0, binx);
   biny = std::max(0, biny);
 
@@ -175,9 +176,9 @@ Int_t TH2Jagged<TH2T>::GetBin(Int_t binx, Int_t biny, Int_t) const {
 
   return fBinMappingToFlat.at({ubin, nubin});
 }
-template <class TH2T>
-void TH2Jagged<TH2T>::GetBinXYZ(Int_t gbin, Int_t &binx, Int_t &biny,
-                                Int_t &binz) const {
+template <typename ST>
+void TH2Jagged<ST>::GetBinXYZ(Int_t gbin, Int_t &binx, Int_t &biny,
+                              Int_t &binz) const {
   gbin = std::max(0, gbin);
   // Default top right bin
   Int_t maxubin = fUniformAxis.GetNbins() + 1;
@@ -195,16 +196,16 @@ void TH2Jagged<TH2T>::GetBinXYZ(Int_t gbin, Int_t &binx, Int_t &biny,
   }
 }
 
-template <class TH2T>
-TAxis const *TH2Jagged<TH2T>::GetNonUniformAxis(Int_t gbin) const {
+template <typename ST>
+TAxis const *TH2Jagged<ST>::GetNonUniformAxis(Int_t gbin) const {
   Int_t x, y, z;
   GetBinXYZ(gbin, x, y, z);
   Int_t ubin = GetUniformAxisT(x, y);
   return &fNonUniformAxes[ubin];
 }
 
-template <class TH2T>
-Int_t TH2Jagged<TH2T>::FindFixBin(Double_t x, Double_t y, Double_t) const {
+template <typename ST>
+Int_t TH2Jagged<ST>::FindFixBin(Double_t x, Double_t y, Double_t) const {
   Double_t u = GetUniformAxisT(x, y);
   Double_t nu = GetNonUniformAxisT(x, y);
 
@@ -213,8 +214,7 @@ Int_t TH2Jagged<TH2T>::FindFixBin(Double_t x, Double_t y, Double_t) const {
   return fBinMappingToFlat.at({ubin, nubin});
 }
 
-template <class TH2T>
-void TH2Jagged<TH2T>::Scale(Double_t c, Option_t *option) {
+template <typename ST> void TH2Jagged<ST>::Scale(Double_t c, Option_t *option) {
   std::string opt = option;
   std::transform(opt.begin(), opt.end(), opt.begin(), ::tolower);
 
@@ -247,48 +247,47 @@ void TH2Jagged<TH2T>::Scale(Double_t c, Option_t *option) {
   }
 }
 
-template <class TH2T>
-Double_t TH2Jagged<TH2T>::GetBinContent(Int_t gbin) const {
+template <typename ST> Double_t TH2Jagged<ST>::GetBinContent(Int_t gbin) const {
   gbin = std::max(0, gbin);
   gbin = std::min(gbin, Int_t(fBinContent.size() - 1));
   return fBinContent[gbin];
 }
-template <class TH2T>
-Double_t TH2Jagged<TH2T>::GetBinContent(Int_t binx, Int_t biny) const {
+template <typename ST>
+Double_t TH2Jagged<ST>::GetBinContent(Int_t binx, Int_t biny) const {
   return GetBinContent(GetBin(binx, biny));
 }
 
-template <class TH2T> void TH2Jagged<TH2T>::SetBinContent(Int_t gbin, ST c) {
+template <typename ST> void TH2Jagged<ST>::SetBinContent(Int_t gbin, ST c) {
   gbin = std::max(0, gbin);
   gbin = std::min(gbin, Int_t(fBinContent.size() - 1));
   fBinContent[gbin] = c;
 }
-template <class TH2T>
-void TH2Jagged<TH2T>::SetBinContent(Int_t binx, Int_t biny, ST c) {
+template <typename ST>
+void TH2Jagged<ST>::SetBinContent(Int_t binx, Int_t biny, ST c) {
   SetBinContent(GetBin(binx, biny), c);
 }
 
-template <class TH2T> Double_t TH2Jagged<TH2T>::GetBinError(Int_t gbin) const {
+template <typename ST> Double_t TH2Jagged<ST>::GetBinError(Int_t gbin) const {
   gbin = std::max(0, gbin);
   gbin = std::min(gbin, Int_t(fBinError.size() - 1));
   return fBinError[gbin];
 }
-template <class TH2T>
-Double_t TH2Jagged<TH2T>::GetBinError(Int_t binx, Int_t biny) const {
+template <typename ST>
+Double_t TH2Jagged<ST>::GetBinError(Int_t binx, Int_t biny) const {
   return GetBinError(GetBin(binx, biny));
 }
 
-template <class TH2T> void TH2Jagged<TH2T>::SetBinError(Int_t gbin, ST c) {
+template <typename ST> void TH2Jagged<ST>::SetBinError(Int_t gbin, ST c) {
   gbin = std::max(0, gbin);
   gbin = std::min(gbin, Int_t(fBinError.size() - 1));
   fBinError[gbin] = c;
 }
-template <class TH2T>
-void TH2Jagged<TH2T>::SetBinError(Int_t binx, Int_t biny, ST c) {
+template <typename ST>
+void TH2Jagged<ST>::SetBinError(Int_t binx, Int_t biny, ST c) {
   SetBinError(GetBin(binx, biny), c);
 }
 
-template <class TH2T> TH2Poly *TH2Jagged<TH2T>::ToTH2Poly() const {
+template <typename ST> TH2Poly *TH2Jagged<ST>::ToTH2Poly() const {
   std::stringstream ss("");
   ss << TH2::GetName() << "_poly";
   TH2Poly *pol = new TH2Poly(ss.str().c_str(), fOTitle.c_str(), fMinX, fMaxX,
@@ -316,27 +315,26 @@ template <class TH2T> TH2Poly *TH2Jagged<TH2T>::ToTH2Poly() const {
   return pol;
 }
 
-template <class TH2T> void TH2Jagged<TH2T>::Reset(Option_t *option) {
-  std::fill_n(fBinContent.begin(), 0, fBinContent.size());
-  std::fill_n(fBinError.begin(), 0, fBinError.size());
-  std::fill_n(fBinSumW2.begin(), 0, fBinSumW2.size());
+template <typename ST> void TH2Jagged<ST>::Reset(Option_t *option) {
+  std::fill_n(fBinContent.begin(), fBinContent.size(), 0);
+  std::fill_n(fBinError.begin(), fBinError.size(), 0);
+  std::fill_n(fBinSumW2.begin(), fBinSumW2.size(), 0);
 }
 
 template <typename T> struct sqrtfunct {
   T operator()(T const &o) { return std::sqrt(o); }
 };
 
-template <class TH2T>
-void TH2Jagged<TH2T>::RecalculateErrors(Option_t *option) {
+template <typename ST> void TH2Jagged<ST>::RecalculateErrors(Option_t *option) {
   std::string opt(option);
   std::transform(opt.begin(), opt.end(), opt.begin(), ::tolower);
 
   if (!opt.size() || (opt.find("wpoisson") != std::string::npos)) {
     std::transform(fBinSumW2.begin(), fBinSumW2.end(), fBinError.begin(),
-                   sqrtfunct<TH2Jagged<TH2T>::ST>());
+                   sqrtfunct<ST>());
   } else if (opt.find("poisson") != std::string::npos) {
     std::transform(fBinContent.begin(), fBinContent.end(), fBinError.begin(),
-                   sqrtfunct<TH2Jagged<TH2T>::ST>());
+                   sqrtfunct<ST>());
   }
 }
 
@@ -344,24 +342,23 @@ template <typename T> struct quad {
   T operator()(T const &l, T const &r) { return sqrt(l * l + r * r); }
 };
 
-template <class TH2T>
-Bool_t TH2Jagged<TH2T>::Add(const TH2Jagged<TH2T> *h1, Double_t c1) {
+template <typename ST>
+Bool_t TH2Jagged<ST>::Add(const TH2Jagged<ST> *h1, Double_t c1) {
   if (!CheckConsistency(h1)) {
-    throw "[ERROR]: Inconsistent axes in TH2Jagged<TH2T>::Add";
+    throw "[ERROR]: Inconsistent axes in TH2Jagged<ST>::Add";
   }
   std::transform(fBinContent.begin(), fBinContent.end(),
-                 h1->fBinContent.begin(), fBinContent.begin(),
-                 std::plus<TH2Jagged<TH2T>::ST>());
+                 h1->fBinContent.begin(), fBinContent.begin(), std::plus<ST>());
 
   std::transform(fBinError.begin(), fBinError.end(), h1->fBinError.begin(),
-                 fBinError.begin(), quad<TH2Jagged<TH2T>::ST>());
+                 fBinError.begin(), quad<ST>());
 
   std::transform(fBinSumW2.begin(), fBinSumW2.end(), h1->fBinSumW2.begin(),
-                 fBinSumW2.begin(), std::plus<TH2Jagged<TH2T>::ST>());
+                 fBinSumW2.begin(), std::plus<ST>());
   return true;
 }
 
-template <class TH2T> bool TH2Jagged<TH2T>::IsFlowBin(Int_t gbin) const {
+template <typename ST> bool TH2Jagged<ST>::IsFlowBin(Int_t gbin) const {
   Int_t x, y, z;
   GetBinXYZ(gbin, x, y, z);
   Int_t ubin = GetUniformAxisT(x, y);
@@ -371,8 +368,8 @@ template <class TH2T> bool TH2Jagged<TH2T>::IsFlowBin(Int_t gbin) const {
           (nubin == 0) || (nubin == (fNonUniformAxes[ubin].GetNbins() + 1)));
 }
 
-template <class TH2T>
-Double_t TH2Jagged<TH2T>::Integral(Option_t *option) const {
+template <typename ST>
+Double_t TH2Jagged<ST>::Integral(Option_t *option) const {
   std::string opt = option;
   std::transform(opt.begin(), opt.end(), opt.begin(), ::tolower);
 
@@ -405,8 +402,9 @@ Double_t TH2Jagged<TH2T>::Integral(Option_t *option) const {
   return integ;
 }
 
-template <class TH2T>
-TH2T *TH2Jagged<TH2T>::ToUniformTH2(Option_t *option) const {
+template <typename ST>
+typename TH2TypeTraits<ST>::TH2Type *
+TH2Jagged<ST>::ToUniformTH2(Option_t *option) const {
   std::string opt = option;
   std::transform(opt.begin(), opt.end(), opt.begin(), ::tolower);
 
@@ -482,15 +480,17 @@ TH2T *TH2Jagged<TH2T>::ToUniformTH2(Option_t *option) const {
   std::stringstream ss("");
   ss << TH2::GetName() << "_th2";
 
-  TH2T *ret = new TH2T(ss.str().c_str(), fOTitle.c_str(), (XBins->size() - 1),
-                       XBins->data(), (YBins->size() - 1), YBins->data());
+  typename TH2TypeTraits<ST>::TH2Type *ret = new
+      typename TH2TypeTraits<ST>::TH2Type(ss.str().c_str(), fOTitle.c_str(),
+                                          (XBins->size() - 1), XBins->data(),
+                                          (YBins->size() - 1), YBins->data());
 
   for (Int_t xb_it = 1; xb_it < (ret->GetXaxis()->GetNbins() + 1); ++xb_it) {
     for (Int_t yb_it = 1; yb_it < (ret->GetYaxis()->GetNbins() + 1); ++yb_it) {
       double xc = ret->GetXaxis()->GetBinCenter(xb_it);
       double yc = ret->GetYaxis()->GetBinCenter(yb_it);
 
-      Int_t gbin = TH2Jagged<TH2T>::FindFixBin(xc, yc);
+      Int_t gbin = TH2Jagged<ST>::FindFixBin(xc, yc);
       if (IsFlowBin(gbin)) {
         continue;
       }
@@ -523,8 +523,8 @@ TH2T *TH2Jagged<TH2T>::ToUniformTH2(Option_t *option) const {
   return ret;
 }
 
-template <class TH2T>
-typename TH2TypeTraits<TH2T>::TH1Type *TH2Jagged<TH2T>::ToFlatTH1() const {
+template <typename ST>
+typename TH2TypeTraits<ST>::TH1Type *TH2Jagged<ST>::ToFlatTH1() const {
   std::vector<double> NUBins;
   std::vector<std::pair<double, double>> NUBinContent;
 
@@ -549,8 +549,8 @@ typename TH2TypeTraits<TH2T>::TH1Type *TH2Jagged<TH2T>::ToFlatTH1() const {
   }
   return t1;
 }
-template <class TH2T>
-void TH2Jagged<TH2T>::SetBinContentFromFlatTH1(T1T const *h) {
+template <typename ST>
+void TH2Jagged<ST>::SetBinContentFromFlatTH1(T1T const *h) {
   std::vector<std::pair<double, double>> NUBinContent;
 
   for (Int_t i = 0; i < h->GetXaxis()->GetNbins(); ++i) {
@@ -570,8 +570,8 @@ void TH2Jagged<TH2T>::SetBinContentFromFlatTH1(T1T const *h) {
   }
 }
 
-template <class TH2T> TObject *TH2Jagged<TH2T>::Clone(char const *newname) {
-  TH2Jagged<TH2T> *n = new TH2Jagged<TH2T>();
+template <typename ST> TObject *TH2Jagged<ST>::Clone(char const *newname) {
+  TH2Jagged<ST> *n = new TH2Jagged<ST>();
 
   n->fBinMappingToFlat = fBinMappingToFlat;
   n->fUniformAxis = fUniformAxis;
@@ -595,7 +595,39 @@ template <class TH2T> TObject *TH2Jagged<TH2T>::Clone(char const *newname) {
   return n;
 }
 
-template <class TH2T> void TH2Jagged<TH2T>::Draw(Option_t *option) {
+template <typename ST> void TH2Jagged<ST>::Draw(Option_t *option) {
   TH2Poly *p = ToTH2Poly();
   p->Draw(option);
+}
+
+TH2JaggedF *ToTHJaggedF(TH2JaggedD const *d, char const *newname) {
+  TH2JaggedF *f = new TH2JaggedF();
+
+  f->fBinMappingToFlat = d->fBinMappingToFlat;
+  f->fUniformAxis = d->fUniformAxis;
+  f->fNonUniformAxes = d->fNonUniformAxes;
+
+  std::fill_n(std::back_inserter(f->fBinContent), d->GetNbins() + 2, 0);
+  std::fill_n(std::back_inserter(f->fBinError), d->GetNbins() + 2, 0);
+  std::fill_n(std::back_inserter(f->fBinSumW2), d->GetNbins() + 2, 0);
+
+  for (Int_t i = 0; i < d->GetNbins() + 2; ++i) {
+    f->fBinContent[i] = float(d->fBinContent[i]);
+    f->fBinError[i] = float(d->fBinError[i]);
+    f->fBinSumW2[i] = float(d->fBinSumW2[i]);
+  }
+  f->fXIsUniform = d->fXIsUniform;
+  f->fMinX = d->fMinX;
+  f->fMaxX = d->fMaxX;
+  f->fMinY = d->fMinY;
+  f->fMaxY = d->fMaxY;
+  f->fOTitle = d->fOTitle;
+  if (newname) {
+    f->SetName(newname);
+  } else {
+    f->SetName(d->GetName());
+  }
+  f->SetTitle(d->GetTitle());
+
+  return f;
 }
