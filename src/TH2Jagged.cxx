@@ -7,6 +7,7 @@
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include <algorithm>
 
 bool operator<(JBinId const &l, JBinId const &r) {
   if (l.UniBin < r.UniBin) {
@@ -143,7 +144,7 @@ template <class TH2T> Int_t TH2Jagged<TH2T>::Fill(Double_t x, Double_t y) {
 }
 template <class TH2T>
 Int_t TH2Jagged<TH2T>::Fill(Double_t x, Double_t y, Double_t w) {
-  return FillKnownBin(FindFixBin(x, y), w);
+  return FillKnownBin(TH2Jagged<TH2T>::FindFixBin(x, y), w);
 }
 
 template <class TH2T>
@@ -485,7 +486,7 @@ TH2T *TH2Jagged<TH2T>::ToUniformTH2(Option_t *option) const {
       double xc = ret->GetXaxis()->GetBinCenter(xb_it);
       double yc = ret->GetYaxis()->GetBinCenter(yb_it);
 
-      Int_t gbin = FindFixBin(xc, yc);
+      Int_t gbin = TH2Jagged<TH2T>::FindFixBin(xc, yc);
       if (IsFlowBin(gbin)) {
         continue;
       }
