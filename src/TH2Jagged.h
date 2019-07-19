@@ -102,6 +102,8 @@ public:
   Int_t Fill(Double_t x, Double_t y, Double_t w);
   Int_t FillKnownBin(Int_t gbin, Double_t w);
 
+  Int_t GetNbins() const;
+
   Int_t GetBin(Int_t binx, Int_t biny, Int_t binz = 0) const;
   void GetBinXYZ(Int_t gbin, Int_t &binx, Int_t &biny, Int_t &binz) const;
 

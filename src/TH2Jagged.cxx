@@ -3,11 +3,11 @@
 
 #include "TH2Poly.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <limits>
 #include <sstream>
-#include <algorithm>
 
 bool operator<(JBinId const &l, JBinId const &r) {
   if (l.UniBin < r.UniBin) {
@@ -156,6 +156,10 @@ Int_t TH2Jagged<TH2T>::FillKnownBin(Int_t gbin, Double_t w) {
   fBinError[gbin] = sqrt(fBinSumW2[gbin]);
 
   return fBinContent[gbin];
+}
+
+template <class TH2T> Int_t TH2Jagged<TH2T>::GetNbins() const {
+  return fBinContent.size();
 }
 
 template <class TH2T>

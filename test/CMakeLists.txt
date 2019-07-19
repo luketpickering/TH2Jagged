@@ -4,6 +4,7 @@ SET(TESTS
   WriteTest
   ReadTest
   Test
+  TH2DTest
 )
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
