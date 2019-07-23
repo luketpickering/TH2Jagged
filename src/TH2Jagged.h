@@ -145,9 +145,7 @@ public:
   using TH2::Add;
   Bool_t Add(const TH2Jagged<ST> *h1, Double_t c1 = 1);
 
-  // Shuts up compiler warning but pulls methods that will do nothing into scope
-  using TH2::Clone;
-  TObject *Clone(char const *newname = 0);
+  TObject *Clone(char const *newname = 0) const;
   void Draw(Option_t *option = "");
 
   T2T *ToUniformTH2(Option_t *option = "") const;

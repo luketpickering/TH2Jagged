@@ -570,7 +570,7 @@ void TH2Jagged<ST>::SetBinContentFromFlatTH1(T1T const *h) {
   }
 }
 
-template <typename ST> TObject *TH2Jagged<ST>::Clone(char const *newname) {
+template <typename ST> TObject *TH2Jagged<ST>::Clone(char const *newname) const {
   TH2Jagged<ST> *n = new TH2Jagged<ST>();
 
   n->fBinMappingToFlat = fBinMappingToFlat;
