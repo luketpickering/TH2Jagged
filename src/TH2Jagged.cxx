@@ -358,6 +358,15 @@ Bool_t TH2Jagged<ST>::Add(const TH2Jagged<ST> *h1, Double_t c1) {
   return true;
 }
 
+template <typename ST> Bool_t TH2Jagged<ST>::Add(const TH1 *h1, Double_t c1) {
+  if (dynamic_cast<const TH2Jagged<ST> *>(h1)) {
+    return Add(dynamic_cast<const TH2Jagged<ST> *>(h1));
+  } else {
+    throw std::string("[ERROR]: Cannot add ") + h1->ClassName() +
+        " to TH2Jagged<ST>.";
+  }
+}
+
 template <typename ST> bool TH2Jagged<ST>::IsFlowBin(Int_t gbin) const {
   Int_t x, y, z;
   GetBinXYZ(gbin, x, y, z);
@@ -570,7 +579,8 @@ void TH2Jagged<ST>::SetBinContentFromFlatTH1(T1T const *h) {
   }
 }
 
-template <typename ST> TObject *TH2Jagged<ST>::Clone(char const *newname) const {
+template <typename ST>
+TObject *TH2Jagged<ST>::Clone(char const *newname) const {
   TH2Jagged<ST> *n = new TH2Jagged<ST>();
 
   n->fBinMappingToFlat = fBinMappingToFlat;
