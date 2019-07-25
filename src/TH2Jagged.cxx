@@ -113,7 +113,7 @@ bool TH2Jagged<ST>::CheckConsistency(const TH2Jagged *h) {
   return true;
 }
 
-template <typename ST> TH2Jagged<ST>::TH2Jagged() {}
+template <typename ST> TH2Jagged<ST>::TH2Jagged() { ResetUniformAxis(); }
 template <typename ST>
 TH2Jagged<ST>::TH2Jagged(char const *name, char const *title, Int_t NXbins,
                          Double_t XMin, Double_t XMax, Int_t const *NYbins,
@@ -612,6 +612,10 @@ void TH2Jagged<ST>::SetBinContentFromFlatTH1(T1T const *h) {
   }
 }
 
+template <typename ST> void TH2Jagged<ST>::ResetUniformAxis() {
+  (fXIsUniform ? fXaxis : fYaxis) = fUniformAxis;
+}
+
 template <typename ST>
 TObject *TH2Jagged<ST>::Clone(char const *newname) const {
   TH2Jagged<ST> *n = new TH2Jagged<ST>();
@@ -635,8 +639,7 @@ TObject *TH2Jagged<ST>::Clone(char const *newname) const {
   }
   n->SetTitle(GetTitle());
 
-  n->fYaxis = fYaxis;
-  n->fXaxis = fXaxis;
+  n->ResetUniformAxis();
 
   return n;
 }

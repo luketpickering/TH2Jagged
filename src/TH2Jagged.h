@@ -161,6 +161,8 @@ public:
   T1T *ToFlatTH1() const;
   void SetBinContentFromFlatTH1(T1T const *h);
 
+  void ResetUniformAxis();
+
   virtual ~TH2Jagged() {}
 
   ClassDef(TH2Jagged, 1);
