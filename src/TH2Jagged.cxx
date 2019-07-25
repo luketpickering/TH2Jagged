@@ -635,6 +635,9 @@ TObject *TH2Jagged<ST>::Clone(char const *newname) const {
   }
   n->SetTitle(GetTitle());
 
+  n->fYaxis = fYaxis;
+  n->fXaxis = fXaxis;
+
   return n;
 }
 
