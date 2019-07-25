@@ -69,6 +69,10 @@ private:
 
   bool CheckConsistency(const TH2Jagged *h);
 
+protected:
+  TH1D *DoProjection(bool onX, const char *name, Int_t firstbin, Int_t lastbin,
+                     Option_t *option) const;
+
 public:
   TH2Jagged();
 
@@ -151,6 +155,8 @@ public:
 
   T2T *ToUniformTH2(Option_t *option = "") const;
   TH2Poly *ToTH2Poly() const;
+
+  T1T *NonUniformSlice(Int_t ubin) const;
 
   T1T *ToFlatTH1() const;
   void SetBinContentFromFlatTH1(T1T const *h);

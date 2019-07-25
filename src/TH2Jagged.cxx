@@ -533,6 +533,39 @@ TH2Jagged<ST>::ToUniformTH2(Option_t *option) const {
 }
 
 template <typename ST>
+typename TH2TypeTraits<ST>::TH1Type *
+TH2Jagged<ST>::NonUniformSlice(Int_t ubin) const {
+  if (ubin >= fUniformAxis.GetNbins()) {
+    std::cout << "[ERROR]: Requested non uniform slice " << ubin
+              << " but only have " << fUniformAxis.GetNbins()
+              << " bins along the uniform axis." << std::endl;
+    throw;
+  }
+  ubin++;
+
+  std::vector<double> NUBins;
+  std::vector<std::pair<double, double>> NUBinContent;
+
+  NUBins.push_back(fNonUniformAxes[ubin].GetBinLowEdge(1));
+
+  for (int nubin = 1; nubin < fNonUniformAxes[ubin].GetNbins() + 1; ++nubin) {
+    NUBins.push_back(NUBins.back() + fNonUniformAxes[ubin].GetBinWidth(nubin));
+    Int_t gbin = fBinMappingToFlat.at({ubin, nubin});
+    NUBinContent.push_back(
+        std::make_pair<double, double>(GetBinContent(gbin), GetBinError(gbin)));
+  }
+
+  std::stringstream ss("");
+  ss << TH2::GetName() << "_ubin" << ubin;
+  T1T *t1 = new T1T(ss.str().c_str(), "", (NUBins.size() - 1), NUBins.data());
+  for (size_t i = 0; i < NUBinContent.size(); ++i) {
+    t1->SetBinContent(i + 1, NUBinContent[i].first);
+    t1->SetBinError(i + 1, NUBinContent[i].second);
+  }
+  return t1;
+}
+
+template <typename ST>
 typename TH2TypeTraits<ST>::TH1Type *TH2Jagged<ST>::ToFlatTH1() const {
   std::vector<double> NUBins;
   std::vector<std::pair<double, double>> NUBinContent;
@@ -640,4 +673,54 @@ TH2JaggedF *ToTHJaggedF(TH2JaggedD const *d, char const *newname) {
   f->SetTitle(d->GetTitle());
 
   return f;
+}
+
+template <typename ST>
+TH1D *TH2Jagged<ST>::DoProjection(bool onX, const char *name, Int_t firstbin,
+                                  Int_t lastbin, Option_t *option) const {
+
+  bool IsU = (onX == fXIsUniform);
+  if (!IsU && (lastbin == -1)) {
+    lastbin = firstbin;
+  }
+  if (!IsU && (firstbin != lastbin)) {
+    throw "Cannot project multiple bins for non uniform axis";
+  }
+  if (IsU) {
+    throw "Projecting to uniform axis is not yet implemented.";
+  }
+
+  Int_t ubin = firstbin - 1;
+  if (ubin >= fUniformAxis.GetNbins()) {
+    std::cout << "[ERROR]: Requested non uniform slice " << ubin
+              << " but only have " << fUniformAxis.GetNbins()
+              << " bins along the uniform axis." << std::endl;
+    throw;
+  }
+  ubin++;
+
+  std::vector<double> NUBins;
+  std::vector<std::pair<double, double>> NUBinContent;
+
+  NUBins.push_back(fNonUniformAxes[ubin].GetBinLowEdge(1));
+
+  for (int nubin = 1; nubin < fNonUniformAxes[ubin].GetNbins() + 1; ++nubin) {
+    NUBins.push_back(NUBins.back() + fNonUniformAxes[ubin].GetBinWidth(nubin));
+    Int_t gbin = fBinMappingToFlat.at({ubin, nubin});
+    NUBinContent.push_back(
+        std::make_pair<double, double>(GetBinContent(gbin), GetBinError(gbin)));
+  }
+
+  std::stringstream ss("");
+  if (name) {
+    ss << name;
+  } else {
+    ss << TH2::GetName() << "_ubin" << ubin;
+  }
+  TH1D *t1 = new TH1D(ss.str().c_str(), "", (NUBins.size() - 1), NUBins.data());
+  for (size_t i = 0; i < NUBinContent.size(); ++i) {
+    t1->SetBinContent(i + 1, NUBinContent[i].first);
+    t1->SetBinError(i + 1, NUBinContent[i].second);
+  }
+  return t1;
 }
