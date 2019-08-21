@@ -338,9 +338,27 @@ template <typename ST> void TH2Jagged<ST>::RecalculateErrors(Option_t *option) {
   }
 }
 
+namespace {
 template <typename T> struct quad {
-  T operator()(T const &l, T const &r) { return sqrt(l * l + r * r); }
+  double fFactL, fFactR;
+  quad(double factl = 1, double factr = 1) {
+    fFactL = factl;
+    fFactR = factr;
+  }
+  T operator()(T const &l, T const &r) {
+    return sqrt(fFactL * l * fFactL * l + fFactR * r * fFactR * r);
+  }
 };
+
+template <typename T> struct plus {
+  double fFactL, fFactR;
+  plus(double factl = 1, double factr = 1) {
+    fFactL = factl;
+    fFactR = factr;
+  }
+  T operator()(T const &l, T const &r) { return (fFactL * l + fFactR * r); }
+};
+} // namespace
 
 template <typename ST>
 Bool_t TH2Jagged<ST>::Add(const TH2Jagged<ST> *h1, Double_t c1) {
@@ -348,22 +366,56 @@ Bool_t TH2Jagged<ST>::Add(const TH2Jagged<ST> *h1, Double_t c1) {
     throw "[ERROR]: Inconsistent axes in TH2Jagged<ST>::Add";
   }
   std::transform(fBinContent.begin(), fBinContent.end(),
-                 h1->fBinContent.begin(), fBinContent.begin(), std::plus<ST>());
+                 h1->fBinContent.begin(), fBinContent.begin(), plus<ST>(1, c1));
 
   std::transform(fBinError.begin(), fBinError.end(), h1->fBinError.begin(),
-                 fBinError.begin(), quad<ST>());
+                 fBinError.begin(), quad<ST>(1, c1));
 
   std::transform(fBinSumW2.begin(), fBinSumW2.end(), h1->fBinSumW2.begin(),
-                 fBinSumW2.begin(), std::plus<ST>());
+                 fBinSumW2.begin(), plus<ST>(1, c1));
+  return true;
+}
+
+template <typename ST>
+Bool_t TH2Jagged<ST>::Add(const TH2Jagged<ST> *h1, const TH2Jagged<ST> *h2,
+                          Double_t c1, Double_t c2) {
+  if (!CheckConsistency(h1)) {
+    throw "[ERROR]: Inconsistent axes in TH2Jagged<ST>::Add";
+  }
+  if (!CheckConsistency(h2)) {
+    throw "[ERROR]: Inconsistent axes in TH2Jagged<ST>::Add";
+  }
+  std::transform(h1->fBinContent.begin(), h1->fBinContent.end(),
+                 h2->fBinContent.begin(), fBinContent.begin(),
+                 plus<ST>(c1, c2));
+
+  std::transform(h1->fBinError.begin(), h1->fBinError.end(),
+                 h2->fBinError.begin(), fBinError.begin(), quad<ST>(c1, c2));
+
+  std::transform(h1->fBinSumW2.begin(), h1->fBinSumW2.end(),
+                 h2->fBinSumW2.begin(), fBinSumW2.begin(), plus<ST>(c1, c2));
   return true;
 }
 
 template <typename ST> Bool_t TH2Jagged<ST>::Add(const TH1 *h1, Double_t c1) {
   if (dynamic_cast<const TH2Jagged<ST> *>(h1)) {
-    return Add(dynamic_cast<const TH2Jagged<ST> *>(h1));
+    return Add(dynamic_cast<const TH2Jagged<ST> *>(h1), c1);
   } else {
     throw std::string("[ERROR]: Cannot add ") + h1->ClassName() +
         " to TH2Jagged<ST>.";
+  }
+}
+
+template <typename ST>
+Bool_t TH2Jagged<ST>::Add(const TH1 *h1, const TH1 *h2, Double_t c1,
+                          Double_t c2) {
+  if (dynamic_cast<const TH2Jagged<ST> *>(h1) &&
+      dynamic_cast<const TH2Jagged<ST> *>(h2)) {
+    return Add(dynamic_cast<const TH2Jagged<ST> *>(h1),
+               dynamic_cast<const TH2Jagged<ST> *>(h2), c1, c2);
+  } else {
+    throw std::string("[ERROR]: Cannot add ") + h1->ClassName() + " to a " +
+        h2->ClassName() + " with a TH2Jagged<ST>";
   }
 }
 
