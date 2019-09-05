@@ -1,5 +1,6 @@
 SET(TESTS
   BinningTest
+  NoFlowBinningTest
   ErrorTest
   WriteTest
   ReadTest

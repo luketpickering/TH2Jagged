@@ -21,6 +21,7 @@ bool operator<(JBinId const &l, JBinId const &r) {
 
 template <typename ST> void TH2Jagged<ST>::BuildBinMappings() {
   Int_t GBin = 0;
+  Int_t GNoFlowBin = 0;
 
   double minU = fUniformAxis.GetBinLowEdge(1);
   double maxU = fUniformAxis.GetBinUpEdge(fUniformAxis.GetNbins());
@@ -33,6 +34,15 @@ template <typename ST> void TH2Jagged<ST>::BuildBinMappings() {
     minNU = std::min(minNU, fNonUniformAxes[ubin].GetBinLowEdge(1));
     Int_t NNUBins = fNonUniformAxes[ubin].GetNbins();
     for (Int_t nubin = 0; nubin < (NNUBins + 2); ++nubin) {
+
+      // Builds a mapping of 2D binnings to a linear binning [0,NBinsNonFlow)
+      // which ignores flow bins
+      if (ubin && ((ubin + 1) < NNUAxes) && nubin &&
+          (nubin < (NNUBins + 1))) {
+        fBinMappingNonFlowToWithFlowFlat.push_back(GBin);
+        fBinMappingToNonFlowFlat[JBinId{ubin, nubin}] = GNoFlowBin++;
+      }
+
       fBinMappingToFlat[JBinId{ubin, nubin}] = GBin;
       GBin++;
     }
@@ -212,6 +222,21 @@ Int_t TH2Jagged<ST>::FindFixBin(Double_t x, Double_t y, Double_t) const {
   Int_t ubin = fUniformAxis.FindFixBin(u);
   Int_t nubin = fNonUniformAxes[ubin].FindFixBin(nu);
   return fBinMappingToFlat.at({ubin, nubin});
+}
+template <typename ST>
+Int_t TH2Jagged<ST>::FindFixBinNoFlow(Double_t x, Double_t y, Double_t z) const {
+  Double_t u = GetUniformAxisT(x, y);
+  Double_t nu = GetNonUniformAxisT(x, y);
+
+  Int_t ubin = fUniformAxis.FindFixBin(u);
+  Int_t nubin = fNonUniformAxes[ubin].FindFixBin(nu);
+  if ((ubin == 0) || (ubin >= (fUniformAxis.GetNbins() + 1))) {
+    return -1;
+  }
+  if ((nubin == 0) || (nubin >= (fNonUniformAxes[ubin].GetNbins() + 1))) {
+    return -1;
+  }
+  return fBinMappingToNonFlowFlat.at({ubin, nubin});
 }
 
 template <typename ST> void TH2Jagged<ST>::Scale(Double_t c, Option_t *option) {

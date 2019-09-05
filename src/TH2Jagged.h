@@ -35,6 +35,8 @@ template <typename ST> class TH2Jagged : public TH2 {
 
 public:
   std::map<JBinId, Int_t> fBinMappingToFlat;
+  std::map<JBinId, Int_t> fBinMappingToNonFlowFlat;
+  std::vector<Int_t> fBinMappingNonFlowToWithFlowFlat;
 
   TAxis fUniformAxis;
   std::vector<TAxis> fNonUniformAxes;
@@ -116,6 +118,10 @@ public:
   // Shuts up compiler warning but pulls methods that will do nothing into scope
   using TH2::FindFixBin;
   Int_t FindFixBin(Double_t x, Double_t y, Double_t z = 0) const;
+  // Gets the 1D bin number of a 2D bin which ignores flow bins.
+  // N.B. This is not a gbin, this is useful for mapping non-flow bins defined
+  // by their 2D position to a 1D global bin axis which ignores flow bins.
+  Int_t FindFixBinNoFlow(Double_t x, Double_t y, Double_t z = 0) const;
   bool IsFlowBin(Int_t gbin) const;
 
   void Scale(Double_t c = 1, Option_t *option = "");
