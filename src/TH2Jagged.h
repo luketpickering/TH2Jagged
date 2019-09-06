@@ -109,6 +109,8 @@ public:
   Int_t FillKnownBin(Int_t gbin, Double_t w);
 
   Int_t GetNbins() const;
+  Int_t GetNbinsNonFlow() const;
+  Int_t GetGBinFromNonFlowIndex(Int_t nfidx);
 
   Int_t GetBin(Int_t binx, Int_t biny, Int_t binz = 0) const;
   void GetBinXYZ(Int_t gbin, Int_t &binx, Int_t &biny, Int_t &binz) const;

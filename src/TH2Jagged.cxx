@@ -190,6 +190,19 @@ template <typename ST> Int_t TH2Jagged<ST>::GetNbins() const {
 }
 
 template <typename ST>
+Int_t TH2Jagged<ST>::GetNbinsNonFlow() const {
+  return fBinMappingNonFlowToWithFlowFlat.size();
+}
+
+template <typename ST>
+Int_t TH2Jagged<ST>::GetGBinFromNonFlowIndex(Int_t nfidx) {
+  if ((nfidx >= 0) && (size_t(nfidx) < fBinMappingNonFlowToWithFlowFlat.size())) {
+    return fBinMappingNonFlowToWithFlowFlat[nfidx];
+  }
+  return -1;
+}
+
+template <typename ST>
 Int_t TH2Jagged<ST>::GetBin(Int_t binx, Int_t biny, Int_t) const {
   binx = std::max(0, binx);
   biny = std::max(0, biny);

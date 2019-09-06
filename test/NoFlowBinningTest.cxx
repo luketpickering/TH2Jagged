@@ -18,11 +18,16 @@ int main() {
   TH2JaggedD jag("test", "", NXBins.data(), XLowEdges.data(), XUpEdges.data(),
                  5, 0, 5);
 
+  std::cout << "NBins: " << jag.GetNbins() << std::endl;
+  std::cout << "NBinsNonFlow: " << jag.GetNbinsNonFlow() << std::endl;
+
   int gbin_find_00 = jag.FindFixBin(0, 0);
   say_assert(gbin_find_00, ==, 8);
 
   int nfbin_find_00 = jag.FindFixBinNoFlow(0, 0);
   say_assert(nfbin_find_00, ==, 0);
+
+  say_assert(jag.GetGBinFromNonFlowIndex(nfbin_find_00), ==, gbin_find_00);
 
   int gbin_find_12 = jag.FindFixBin(0.5, 1.5);
   say_assert(gbin_find_12, ==, 15);
@@ -30,11 +35,15 @@ int main() {
   int nfbin_find_12 = jag.FindFixBinNoFlow(0.5, 1.5);
   say_assert(nfbin_find_12, ==, 5);
 
+  say_assert(jag.GetGBinFromNonFlowIndex(nfbin_find_12), ==, gbin_find_12);
+
   int gbin_find_21 = jag.FindFixBin(1.5, 0.5);
   say_assert(gbin_find_21, ==, 9);
 
   int nfbin_find_21 = jag.FindFixBinNoFlow(1.5, 0.5);
   say_assert(nfbin_find_21, ==, 1);
+
+  say_assert(jag.GetGBinFromNonFlowIndex(nfbin_find_21), ==, gbin_find_21);
 
   int gbin_find_OF = jag.FindFixBin(10, 10);
   say_assert(gbin_find_OF, ==, 48);
