@@ -22,6 +22,9 @@ bool operator<(JBinId const &l, JBinId const &r) {
 template <typename ST> void TH2Jagged<ST>::BuildBinMappings() {
   Int_t GBin = 0;
   Int_t GNoFlowBin = 0;
+  fBinMappingNonFlowToWithFlowFlat.clear();
+  fBinMappingToNonFlowFlat.clear();
+  fBinMappingToFlat.clear();
 
   double minU = fUniformAxis.GetBinLowEdge(1);
   double maxU = fUniformAxis.GetBinUpEdge(fUniformAxis.GetNbins());
@@ -53,9 +56,18 @@ template <typename ST> void TH2Jagged<ST>::BuildBinMappings() {
   fMinY = GetYAxisT(minU, minNU);
   fMaxY = GetYAxisT(maxU, maxNU);
 
-  std::fill_n(std::back_inserter(fBinContent), GBin, 0);
-  std::fill_n(std::back_inserter(fBinError), GBin, 0);
-  std::fill_n(std::back_inserter(fBinSumW2), GBin, 0);
+  if (fBinContent.size() != size_t(GBin)) {
+    fBinContent.clear();
+    std::fill_n(std::back_inserter(fBinContent), GBin, 0);
+  }
+  if (fBinError.size() != size_t(GBin)) {
+    fBinError.clear();
+    std::fill_n(std::back_inserter(fBinError), GBin, 0);
+  }
+  if (fBinSumW2.size() != size_t(GBin)) {
+    fBinSumW2.clear();
+    std::fill_n(std::back_inserter(fBinSumW2), GBin, 0);
+  }
 }
 
 template <typename ST>
@@ -122,7 +134,12 @@ bool TH2Jagged<ST>::CheckConsistency(const TH2Jagged *h) {
   return true;
 }
 
-template <typename ST> TH2Jagged<ST>::TH2Jagged() { ResetUniformAxis(); }
+template <typename ST> TH2Jagged<ST>::TH2Jagged() {
+  ResetUniformAxis();
+  // Added to elide a bug where the copy of the bin mappings was missed, could
+  // be removed in future versions
+  BuildBinMappings();
+}
 template <typename ST>
 TH2Jagged<ST>::TH2Jagged(char const *name, char const *title, Int_t NXbins,
                          Double_t XMin, Double_t XMax, Int_t const *NYbins,
@@ -717,6 +734,10 @@ TObject *TH2Jagged<ST>::Clone(char const *newname) const {
     n->SetName(GetName());
   }
   n->SetTitle(GetTitle());
+
+  // Added to elide a bug where the copy of the bin mappings was missed, could
+  // be removed in future versions
+  n->BuildBinMappings();
 
   n->ResetUniformAxis();
 
