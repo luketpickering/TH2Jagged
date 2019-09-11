@@ -153,6 +153,8 @@ public:
 
   Double_t Integral(Option_t *option = "") const;
 
+  // Shuts up compiler warning but pulls methods that will do nothing into scope
+  using TH2::Add;
   Bool_t Add(const TH2Jagged<ST> *h1, Double_t c1 = 1);
   Bool_t Add(const TH2Jagged<ST> *h1, const TH2Jagged<ST> *h2, Double_t c1,
              Double_t c2);

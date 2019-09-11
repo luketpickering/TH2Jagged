@@ -189,14 +189,14 @@ template <typename ST> Int_t TH2Jagged<ST>::GetNbins() const {
   return (fBinContent.size() - 2);
 }
 
-template <typename ST>
-Int_t TH2Jagged<ST>::GetNbinsNonFlow() const {
+template <typename ST> Int_t TH2Jagged<ST>::GetNbinsNonFlow() const {
   return fBinMappingNonFlowToWithFlowFlat.size();
 }
 
 template <typename ST>
 Int_t TH2Jagged<ST>::GetGBinFromNonFlowIndex(Int_t nfidx) {
-  if ((nfidx >= 0) && (size_t(nfidx) < fBinMappingNonFlowToWithFlowFlat.size())) {
+  if ((nfidx >= 0) &&
+      (size_t(nfidx) < fBinMappingNonFlowToWithFlowFlat.size())) {
     return fBinMappingNonFlowToWithFlowFlat[nfidx];
   }
   return -1;
@@ -217,7 +217,7 @@ Int_t TH2Jagged<ST>::GetBin(Int_t binx, Int_t biny, Int_t) const {
 }
 template <typename ST>
 void TH2Jagged<ST>::GetBinXYZ(Int_t gbin, Int_t &binx, Int_t &biny,
-                              Int_t &binz) const {
+                              Int_t &) const {
   gbin = std::max(0, gbin);
   // Default top right bin
   Int_t maxubin = fUniformAxis.GetNbins() + 1;
@@ -253,8 +253,7 @@ Int_t TH2Jagged<ST>::FindFixBin(Double_t x, Double_t y, Double_t) const {
   return fBinMappingToFlat.at({ubin, nubin});
 }
 template <typename ST>
-Int_t TH2Jagged<ST>::FindFixBinNoFlow(Double_t x, Double_t y,
-                                      Double_t z) const {
+Int_t TH2Jagged<ST>::FindFixBinNoFlow(Double_t x, Double_t y, Double_t) const {
   Double_t u = GetUniformAxisT(x, y);
   Double_t nu = GetNonUniformAxisT(x, y);
 
@@ -370,7 +369,7 @@ template <typename ST> TH2Poly *TH2Jagged<ST>::ToTH2Poly() const {
   return pol;
 }
 
-template <typename ST> void TH2Jagged<ST>::Reset(Option_t *option) {
+template <typename ST> void TH2Jagged<ST>::Reset(Option_t *) {
   std::fill_n(fBinContent.begin(), fBinContent.size(), 0);
   std::fill_n(fBinError.begin(), fBinError.size(), 0);
   std::fill_n(fBinSumW2.begin(), fBinSumW2.size(), 0);
@@ -796,7 +795,7 @@ TH2JaggedF *ToTHJaggedF(TH2JaggedD const *d, char const *newname) {
 
 template <typename ST>
 TH1D *TH2Jagged<ST>::DoProjection(bool onX, const char *name, Int_t firstbin,
-                                  Int_t lastbin, Option_t *option) const {
+                                  Int_t lastbin, Option_t *) const {
 
   bool IsU = (onX == fXIsUniform);
   if (!IsU && (lastbin == -1)) {
