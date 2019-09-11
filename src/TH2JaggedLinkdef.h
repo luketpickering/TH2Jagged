@@ -4,5 +4,5 @@
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
 
-#pragma link C++ defined_in "TH2Jagged.h";
+#pragma link C++ defined_in "TH2Jagged_impl.h";
 #endif
