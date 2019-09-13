@@ -842,3 +842,8 @@ TH1D *TH2Jagged<ST>::DoProjection(bool onX, const char *name, Int_t firstbin,
   }
   return t1;
 }
+
+template class TH2Jagged<double>;
+template class TH2Jagged<float>;
+template class TH2Jagged<int>;
+template class TH2Jagged<char>;

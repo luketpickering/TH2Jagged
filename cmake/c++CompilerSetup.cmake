@@ -1,11 +1,8 @@
 set(CXX_WARNINGS -Wall -Wextra -Wno-unused-result -Wno-unknown-pragmas)
 
-LIST(APPEND EXTRA_CXX_FLAGS ${CXX_WARNINGS} -Werror -Wno-delete-non-virtual-dtor -Wno-unused "-D__FILENAME__=\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"")
+LIST(APPEND EXTRA_CXX_FLAGS ${CXX_WARNINGS} -Werror -Wno-delete-non-virtual-dtor -Wno-unused "-D__FILENAME__=\"$(subst ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"" -DNOSPEC)
 
-LIST(APPEND EXTRA_LIBS dl)
-if(DEFINED USE_OPENMP AND USE_OPENMP)
-  LIST(APPEND EXTRA_LIBS -lgomp)
-endif()
+LIST(APPEND EXTRA_LIBS stdc++ m dl)
 
 list(REMOVE_DUPLICATES EXTRA_LINK_DIRS)
 list(REMOVE_DUPLICATES EXTRA_LIBS)
