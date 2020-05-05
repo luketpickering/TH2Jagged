@@ -9,6 +9,8 @@
 #include <limits>
 #include <sstream>
 
+#define DEBUG_TH2Jagged
+
 bool operator<(JBinId const &l, JBinId const &r) {
   if (l.UniBin < r.UniBin) {
     return true;
@@ -207,11 +209,25 @@ Int_t TH2Jagged<ST>::GetBin(Int_t binx, Int_t biny, Int_t) const {
   binx = std::max(0, binx);
   biny = std::max(0, biny);
 
+#ifdef DEBUG_TH2Jagged
+  std::cout << "[DEBUG]: GetBin(" << binx << ", " << biny << ")" << std::endl;
+#endif
+
   Int_t ubin = GetUniformAxisT(binx, biny);
+
+#ifdef DEBUG_TH2Jagged
+  std::cout << "[DEBUG]: \tUniform axis is: "
+            << GetUniformAxisT("xaxis", "yaxis") << std::endl;
+#endif
+
   ubin = std::min(ubin, Int_t(fNonUniformAxes.size() - 1));
 
   Int_t nubin = GetNonUniformAxisT(binx, biny);
   nubin = std::min(nubin, fNonUniformAxes[ubin].GetNbins() + 1);
+
+#ifdef DEBUG_TH2Jagged
+  std::cout << "[DEBUG]: \tUBin: " << ubin << ", NUBin: " << nubin << std::endl;
+#endif
 
   return fBinMappingToFlat.at({ubin, nubin});
 }
@@ -240,6 +256,16 @@ TAxis const *TH2Jagged<ST>::GetNonUniformAxis(Int_t gbin) const {
   Int_t x, y, z;
   GetBinXYZ(gbin, x, y, z);
   Int_t ubin = GetUniformAxisT(x, y);
+  return GetNonUniformAxis_UniformAxisBin(ubin);
+}
+
+template <typename ST>
+TAxis const *TH2Jagged<ST>::GetNonUniformAxis_UniformAxisBin(Int_t ubin) const {
+  if (ubin > int(fNonUniformAxes.size())) {
+    std::cout << "Error, requested non uniform TAxis instance for uniform bin: "
+              << ubin << ", but only have " << fNonUniformAxes.size()
+              << " including flow bins." << std::endl;
+  }
   return &fNonUniformAxes[ubin];
 }
 
@@ -250,6 +276,29 @@ Int_t TH2Jagged<ST>::FindFixBin(Double_t x, Double_t y, Double_t) const {
 
   Int_t ubin = fUniformAxis.FindFixBin(u);
   Int_t nubin = fNonUniformAxes[ubin].FindFixBin(nu);
+
+#ifdef DEBUG_TH2Jagged
+  std::cout << "[DEBUG]: FindFixBin(" << x << ", " << y << ")" << std::endl;
+#endif
+#ifdef DEBUG_TH2Jagged
+  std::cout << "[DEBUG]: \tUniform axis is: "
+            << GetUniformAxisT("xaxis", "yaxis") << std::endl;
+#endif
+#ifdef DEBUG_TH2Jagged
+  std::cout << "[DEBUG]: \tUval: " << u << ", NUval: " << nu << std::endl;
+  std::cout << "\tNUAx[" << ubin
+            << "].GetNbins() = " << fNonUniformAxes[ubin].GetNbins()
+            << std::endl;
+  for (int i = 0; i < fNonUniformAxes[ubin].GetNbins(); ++i) {
+    std::cout << "\t\tNUAx[" << ubin << "][" << i << "] = ["
+              << fNonUniformAxes[ubin].GetBinLowEdge(i + 1) << "-"
+              << fNonUniformAxes[ubin].GetBinUpEdge(i + 1) << "]" << std::endl;
+  }
+#endif
+#ifdef DEBUG_TH2Jagged
+  std::cout << "[DEBUG]: \tUBin: " << ubin << ", NUBin: " << nubin << std::endl;
+#endif
+
   return fBinMappingToFlat.at({ubin, nubin});
 }
 template <typename ST>

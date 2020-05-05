@@ -125,7 +125,14 @@ public:
   Int_t GetBin(Int_t binx, Int_t biny, Int_t binz = 0) const;
   void GetBinXYZ(Int_t gbin, Int_t &binx, Int_t &biny, Int_t &binz) const;
 
+  // N.B. This does not use the bin index from the uniform axis
+  // but the gbin, Use GetNonUniformAxis_UniformAxisBin to get, e.g. the xaxis
+  // using a ybin where y is the uniform axis.
   TAxis const *GetNonUniformAxis(Int_t gbin) const;
+
+  // Use this method with a bit of care as you must make sure to use the correct
+  // axis index.
+  TAxis const *GetNonUniformAxis_UniformAxisBin(Int_t ubin) const;
 
   // Shuts up compiler warning but pulls methods that will do nothing into scope
   using TH2::FindFixBin;
@@ -183,6 +190,32 @@ public:
   void SetBinContentFromFlatTH1(T1T const *h);
 
   void ResetUniformAxis();
+
+  std::string BinningString() const {
+    std::stringstream ss("");
+    ss << "THJagged: { Name: " << GetName() << ", Title: " << GetTitle()
+       << std::endl;
+    ss << "\tUniformAxis: { Axis: " << GetUniformAxisT("x", "y")
+       << ", NBins: " << fUniformAxis.GetNbins() << ", Binning: [ ";
+    for (int i = 0; i < fUniformAxis.GetNbins(); ++i) {
+      ss << fUniformAxis.GetBinLowEdge(i + 1) << "-"
+         << fUniformAxis.GetBinUpEdge(i + 1) << ", ";
+    }
+    ss << " ] }," << std::endl;
+    ss << "\tNonUniformAxes: {" << std::endl;
+    for (int i = 0; i < fUniformAxis.GetNbins(); ++i) {
+      ss << "\t\tUniformAxisBin: [" << fUniformAxis.GetBinLowEdge(i + 1) << "-"
+         << fUniformAxis.GetBinUpEdge(i + 1)
+         << "], NBins: " << fNonUniformAxes[i + 1].GetNbins()
+         << ", Binning: [ ";
+      for (int j = 0; j < fNonUniformAxes[i + 1].GetNbins(); ++j) {
+        ss << fNonUniformAxes[i + 1].GetBinLowEdge(j + 1) << "-"
+           << fNonUniformAxes[i + 1].GetBinUpEdge(j + 1) << ", ";
+      }
+      ss << " ]" << std::endl;
+    }
+    return ss.str();
+  }
 
   virtual ~TH2Jagged() {}
 

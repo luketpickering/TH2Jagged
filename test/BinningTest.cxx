@@ -53,4 +53,86 @@ int main() {
 
   int gbin_find_UFy = jag.FindFixBin(4.5, -1);
   say_assert(gbin_find_UFy, ==, 5);
+
+  std::vector<Int_t> NXBins_ylong(20, 5);
+  std::vector<double> XLowEdges_ylong(20, 0);
+  std::vector<double> XUpEdges_ylong(20, 5);
+
+  for (int i = 0; i < 20; ++i) {
+    NXBins_ylong[i] = i / 2 + 2;
+    XLowEdges_ylong[i] = i;
+    XUpEdges_ylong[i] = i + 1 + (20 * i) / 2;
+  }
+
+  TH2JaggedD jag_ylong("test", "", NXBins_ylong.data(), XLowEdges_ylong.data(),
+                       XUpEdges_ylong.data(), 20, 0, 20);
+  std::cout << jag_ylong.BinningString() << std::endl;
+  for (int ybin_it = 0; ybin_it < jag_ylong.GetYaxis()->GetNbins(); ++ybin_it) {
+    std::cout << "ybin_it: " << ybin_it << " ["
+              << jag_ylong.GetYaxis()->GetBinLowEdge(ybin_it + 1) << "-"
+              << jag_ylong.GetYaxis()->GetBinUpEdge(ybin_it + 1) << "]"
+              << std::endl;
+    TAxis const *xax = jag_ylong.GetNonUniformAxis_UniformAxisBin(ybin_it + 1);
+    std::cout << "nbinsx: " << xax->GetNbins() << std::endl;
+
+    for (int xbin_it = 0; xbin_it < xax->GetNbins(); ++xbin_it) {
+      std::cout << "\txbin_it: " << xbin_it << " ["
+                << xax->GetBinLowEdge(xbin_it + 1) << "-"
+                << xax->GetBinUpEdge(xbin_it + 1) << "]" << std::endl;
+
+      double ybc = jag_ylong.GetYaxis()->GetBinCenter(ybin_it + 1);
+      double xbc = xax->GetBinCenter(xbin_it + 1);
+
+      int gb = jag_ylong.GetBin(xbin_it + 1, ybin_it + 1);
+
+      std::cout << "\t--[xbc]: " << xbc << std::endl;
+      std::cout << "\t--[ybc]: " << ybc << std::endl;
+      int ffb = jag_ylong.FindFixBin(xbc, ybc);
+
+      std::cout << "\t--[gbin]: " << gb << std::endl;
+      std::cout << "\t--[FFB]: " << ffb << std::endl;
+
+      say_assert(gb, ==, ffb);
+    }
+  }
+
+  std::vector<Int_t> NXBins_xlong(20, 100);
+  std::vector<double> XLowEdges_xlong(20, 0);
+  std::vector<double> XUpEdges_xlong(20, 5);
+  for (int i = 0; i < 20; ++i) {
+    NXBins_xlong[i] = ((i / 2) + 10);
+    XLowEdges_xlong[i] = i;
+    XUpEdges_xlong[i] = i + 1 + (20 * i) / 2;
+  }
+
+  TH2JaggedD jag_xlong("test", "", NXBins_xlong.data(), XLowEdges_xlong.data(),
+                       XUpEdges_xlong.data(), 20, 0, 20);
+  std::cout << jag_xlong.BinningString() << std::endl;
+  for (int ybin_it = 0; ybin_it < jag_xlong.GetYaxis()->GetNbins(); ++ybin_it) {
+    std::cout << "ybin_it: " << ybin_it << " ["
+              << jag_xlong.GetYaxis()->GetBinLowEdge(ybin_it + 1) << "-"
+              << jag_xlong.GetYaxis()->GetBinUpEdge(ybin_it + 1) << "]"
+              << std::endl;
+    TAxis const *xax = jag_xlong.GetNonUniformAxis_UniformAxisBin(ybin_it + 1);
+    std::cout << "nbinsx: " << xax->GetNbins() << std::endl;
+
+    for (int xbin_it = 0; xbin_it < xax->GetNbins(); ++xbin_it) {
+      std::cout << "\txbin_it: " << xbin_it << " ["
+                << xax->GetBinLowEdge(xbin_it + 1) << "-"
+                << xax->GetBinUpEdge(xbin_it + 1) << "]" << std::endl;
+
+      double ybc = jag_xlong.GetYaxis()->GetBinCenter(ybin_it + 1);
+      double xbc = xax->GetBinCenter(xbin_it + 1);
+
+      int gb = jag_xlong.GetBin(xbin_it + 1, ybin_it + 1);
+
+      std::cout << "\t--[xbc]: " << xbc << std::endl;
+      std::cout << "\t--[ybc]: " << ybc << std::endl;
+      int ffb = jag_xlong.FindFixBin(xbc, ybc);
+
+      std::cout << "\t--[gbin]: " << gb << std::endl;
+      std::cout << "\t--[FFB]: " << ffb << std::endl;
+      say_assert(gb, ==, ffb);
+    }
+  }
 }
