@@ -9,7 +9,7 @@
 #include <limits>
 #include <sstream>
 
-#define DEBUG_TH2Jagged
+// #define DEBUG_TH2Jagged
 
 bool operator<(JBinId const &l, JBinId const &r) {
   if (l.UniBin < r.UniBin) {
