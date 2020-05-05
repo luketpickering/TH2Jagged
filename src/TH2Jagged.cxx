@@ -252,7 +252,7 @@ void TH2Jagged<ST>::GetBinXYZ(Int_t gbin, Int_t &binx, Int_t &biny,
 }
 
 template <typename ST>
-TAxis const *TH2Jagged<ST>::GetNonUniformAxis(Int_t gbin) const {
+TAxis const *TH2Jagged<ST>::GetNonUniformAxis_GlobalBin(Int_t gbin) const {
   Int_t x, y, z;
   GetBinXYZ(gbin, x, y, z);
   Int_t ubin = GetUniformAxisT(x, y);

@@ -128,7 +128,7 @@ public:
   // N.B. This does not use the bin index from the uniform axis
   // but the gbin, Use GetNonUniformAxis_UniformAxisBin to get, e.g. the xaxis
   // using a ybin where y is the uniform axis.
-  TAxis const *GetNonUniformAxis(Int_t gbin) const;
+  TAxis const *GetNonUniformAxis_GlobalBin(Int_t gbin) const;
 
   // Use this method with a bit of care as you must make sure to use the correct
   // axis index.
