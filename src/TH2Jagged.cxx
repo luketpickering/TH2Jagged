@@ -411,8 +411,8 @@ template <typename ST> TH2Poly *TH2Jagged<ST>::ToTH2Poly() const {
       Int_t b = pol->AddBin(XBinEdges.first, YBinEdges.first, XBinEdges.second,
                             YBinEdges.second);
 
-      pol->SetBinContent(b, GetBinContent(fBinMappingToFlat.at({ubin, nubin})));
-      pol->SetBinError(b, GetBinError(fBinMappingToFlat.at({ubin, nubin})));
+      pol->SetBinContent(b + 1, GetBinContent(fBinMappingToFlat.at({ubin, nubin})));
+      pol->SetBinError(b + 1, GetBinError(fBinMappingToFlat.at({ubin, nubin})));
     }
   }
   return pol;

@@ -1,4 +1,3 @@
-
 #define TH2JAGGED_DEBUG
 #include "TH2Jagged.h"
 
