@@ -7,6 +7,8 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <sstream>
+#include <iostream>
 
 class TH2Poly;
 
