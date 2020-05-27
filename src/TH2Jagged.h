@@ -4,11 +4,11 @@
 #include "TH1.h"
 #include "TH2.h"
 
+#include <iostream>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
-#include <iostream>
 
 class TH2Poly;
 
@@ -190,6 +190,13 @@ public:
 
   T1T *ToFlatTH1() const;
   void SetBinContentFromFlatTH1(T1T const *h);
+
+  // Get a 'sub' histogram, by slicing along the non uniform axis.
+  //
+  // If the under/overflow bins are not included, a new one is created and left
+  // empty (there is no general way to keep that information correctly.)
+  TH2Jagged<ST> *UniformRange(char const *name, Int_t ubin_from = 0,
+                              Int_t ubin_to = -1) const;
 
   void ResetUniformAxis();
 

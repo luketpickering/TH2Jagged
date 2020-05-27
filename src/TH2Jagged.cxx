@@ -411,7 +411,8 @@ template <typename ST> TH2Poly *TH2Jagged<ST>::ToTH2Poly() const {
       Int_t b = pol->AddBin(XBinEdges.first, YBinEdges.first, XBinEdges.second,
                             YBinEdges.second);
 
-      pol->SetBinContent(b + 1, GetBinContent(fBinMappingToFlat.at({ubin, nubin})));
+      pol->SetBinContent(b + 1,
+                         GetBinContent(fBinMappingToFlat.at({ubin, nubin})));
       pol->SetBinError(b + 1, GetBinError(fBinMappingToFlat.at({ubin, nubin})));
     }
   }
@@ -564,6 +565,114 @@ Double_t TH2Jagged<ST>::Integral(Option_t *option) const {
     }
   }
   return integ;
+}
+
+template <typename ST>
+TH2Jagged<ST> *TH2Jagged<ST>::UniformRange(char const *name, Int_t ubin_from,
+                                           Int_t ubin_to) const {
+  TH2Jagged<ST> *out = new TH2Jagged<ST>();
+  out->SetName(name);
+
+  if (ubin_to > fUniformAxis.GetNbins() + 2) {
+    std::cout << "[WARN]: Requested Uniform range from: " << ubin_from << " -> "
+              << ubin_to << " but only have " << fUniformAxis.GetNbins()
+              << " bins (+2 overflow.)" << std::endl;
+    ubin_to = (fUniformAxis.GetNbins() + 2);
+  }
+
+  if (ubin_to == -1) {
+    ubin_to = fUniformAxis.GetNbins() + 2;
+  }
+
+  for (Int_t ubin = ubin_from; ubin < ubin_to; ++ubin) {
+    out->fNonUniformAxes.push_back(fNonUniformAxes[ubin]);
+  }
+
+  if (ubin_from == 0) {
+    // we copied the underflow bin
+  } else if (ubin_from == 1) {
+    // we didn't copy the underflow bin, but we can use it
+    ubin_from -= 1;
+    out->fNonUniformAxes.insert(out->fNonUniformAxes.begin(),
+                                fNonUniformAxes.front());
+  } else {
+    // just copy the first axis again
+    out->fNonUniformAxes.insert(out->fNonUniformAxes.begin(),
+                                fNonUniformAxes[ubin_from]);
+  }
+
+  if (ubin_to == (fUniformAxis.GetNbins() + 2)) {
+    // we copied the overflow bin
+  } else if (ubin_to == (fUniformAxis.GetNbins() + 1)) {
+    // we didn't copy the overflow bin, but we can use it
+    ubin_to += 1;
+    out->fNonUniformAxes.push_back(fNonUniformAxes.back());
+  } else {
+    // just copy the first axis again
+    out->fNonUniformAxes.push_back(fNonUniformAxes[ubin_to]);
+  }
+
+  std::vector<double> UniformBinEdges;
+  UniformBinEdges.push_back(
+      fUniformAxis.GetBinLowEdge((ubin_from == 0 ? 1 : ubin_from)));
+  for (Int_t ubin = (ubin_from == 0 ? 1 : ubin_from);
+       ubin < (ubin_to == (fUniformAxis.GetNbins() + 2)
+                   ? (fUniformAxis.GetNbins() + 1)
+                   : ubin_to);
+       ++ubin) {
+    UniformBinEdges.push_back(fUniformAxis.GetBinUpEdge(ubin));
+  }
+
+  out->fUniformAxis = TAxis(UniformBinEdges.size() - 1, UniformBinEdges.data());
+
+  out->fXIsUniform = fXIsUniform;
+
+  out->ResetUniformAxis();
+  // Added to elide a bug where the copy of the bin mappings was missed, could
+  // be removed in future versions
+  out->BuildBinMappings();
+
+  // Copy all the relevant content
+  for (Int_t ubin = ubin_from; ubin < ubin_to; ++ubin) {
+    // Dont want to copy things into the under/overflow unless we know that we
+    // can. Make sure that whatever original bin we start on, we put that into
+    // bin 1.
+
+    Int_t ubin_out;
+
+    if (ubin_from == 0) { // original undeflow
+
+      // start at the bottom ubin_from = 0
+      // ubin = 0 -> ubin_out = 0
+      // ubin = 1 -> ubin_out = 1
+      ubin_out = ubin;
+    } else {
+
+      // n.b. ubin_from cannot be 1, if it is its pushed back to 0 and the
+      // underflow is copied.
+
+      // start at the bottom ubin_from = 2
+      // ubin = 2 -> ubin_out = 1
+      // ubin = 3 -> ubin_out = 2
+      ubin_out = ubin - (ubin_from - 1);
+    }
+    // std::cout << "[INFO]: Slice: " << ubin << " -> " << ubin_out << std::endl;
+
+    // Keep under/overflow info for non-uniform slices.
+    for (Int_t nubin = 0; nubin < (fNonUniformAxes[ubin].GetNbins() + 2);
+         ++nubin) {
+      Int_t gbin = fBinMappingToFlat.at({ubin, nubin});
+      Int_t out_gbin = out->fBinMappingToFlat.at({ubin_out, nubin});
+      // std::cout << "\t\tNon-Uniform bin: " << nubin << ", Gbin: " << gbin
+      //           << " -> " << out_gbin << "(= " << fBinContent[gbin] << ")" << std::endl;
+
+      out->fBinContent[out_gbin] = fBinContent[gbin];
+      out->fBinError[out_gbin] = fBinError[gbin];
+      out->fBinSumW2[out_gbin] = fBinSumW2[gbin];
+    }
+  }
+
+  return out;
 }
 
 template <typename ST>

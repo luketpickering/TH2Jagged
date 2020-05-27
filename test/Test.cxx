@@ -43,7 +43,21 @@ int main() {
     uni.Fill(x, y);
   }
 
+  auto jag_slice_whole =
+      jag.UniformRange("jag_slice_whole", 0, 11);
+  auto jag_slice_keep_low =
+      jag.UniformRange("jag_slice_keep_low", 1, 9);
+  auto jag_slice_keep_up =
+      jag.UniformRange("jag_slice_keep_up", 3, 10);
+  auto jag_slice = jag.UniformRange("jag_slice", 3, 9);
+
   TFile f("TH2JagTestPoly.root", "RECREATE");
+
+  f.WriteTObject(jag_slice_whole, jag_slice_whole->GetName());
+  f.WriteTObject(jag_slice_keep_low, jag_slice_keep_low->GetName());
+  f.WriteTObject(jag_slice_keep_up, jag_slice_keep_up->GetName());
+  f.WriteTObject(jag_slice, jag_slice->GetName());
+
   TH2Poly *p = jag.ToTH2Poly();
   f.WriteTObject(p, "poly");
   jag.Scale(0.1);
