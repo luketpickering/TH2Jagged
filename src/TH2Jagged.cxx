@@ -848,7 +848,7 @@ TH2Jagged<ST>::ToUniformTH2(Option_t *option) const {
 template <typename ST>
 typename TH2TypeTraits<ST>::TH1Type *
 TH2Jagged<ST>::NonUniformSlice(Int_t ubin) const {
-  if (ubin >= fUniformAxis.GetNbins()) {
+  if (ubin > fUniformAxis.GetNbins()) {
     std::cout << "[ERROR]: Requested non uniform slice " << ubin
               << " but only have " << fUniformAxis.GetNbins()
               << " bins along the uniform axis." << std::endl;
