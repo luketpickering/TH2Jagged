@@ -195,8 +195,12 @@ public:
   //
   // If the under/overflow bins are not included, a new one is created and left
   // empty (there is no general way to keep that information correctly.)
+  //
+  // If AttemptProjectionNonUniform is true, and all uniform bins in range have
+  // matching non uniform binnings, then project down into a single row/column
   TH2Jagged<ST> *UniformRange(char const *name, Int_t ubin_from = 0,
-                              Int_t ubin_to = -1) const;
+                              Int_t ubin_to = -1,
+                              bool AttemptProjectionNonUniform = false) const;
 
   void ResetUniformAxis();
 

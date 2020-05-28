@@ -43,12 +43,9 @@ int main() {
     uni.Fill(x, y);
   }
 
-  auto jag_slice_whole =
-      jag.UniformRange("jag_slice_whole", 0, 11);
-  auto jag_slice_keep_low =
-      jag.UniformRange("jag_slice_keep_low", 1, 9);
-  auto jag_slice_keep_up =
-      jag.UniformRange("jag_slice_keep_up", 3, 10);
+  auto jag_slice_whole = jag.UniformRange("jag_slice_whole", 0, 11);
+  auto jag_slice_keep_low = jag.UniformRange("jag_slice_keep_low", 1, 9);
+  auto jag_slice_keep_up = jag.UniformRange("jag_slice_keep_up", 3, 10);
   auto jag_slice = jag.UniformRange("jag_slice", 3, 9);
 
   TFile f("TH2JagTestPoly.root", "RECREATE");
@@ -100,6 +97,44 @@ int main() {
   }
 
   assert(didthrow);
+
+  NXBins = {3, 3, 3, 5, 5, 5, 10, 10, 10};
+  XLowEdges = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
+  XUpEdges = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+  TH2JaggedD jag_projslice(
+      "jag_projslice", "some title; some x axis; some y axis; some z axis",
+      NXBins.data(), XLowEdges.data(), XUpEdges.data(), 9, -2.25, 2.25);
+
+  for (size_t i = 0; i < 1000000; ++i) {
+    double x = gRandom->Gaus(0, 1);
+    double y = gRandom->Gaus(0, 2);
+    jag_projslice.Fill(x, y);
+  }
+
+  f.WriteTObject(&jag_projslice, "projslice");
+
+  TH2JaggedD *projslice_low = jag_projslice.UniformRange("projslice_low", 1, 4);
+  TH2JaggedD *projslice_mid = jag_projslice.UniformRange("projslice_mid", 4, 7);
+  TH2JaggedD *projslice_up = jag_projslice.UniformRange("projslice_up", 7, 10);
+
+  f.WriteTObject(projslice_low, "projslice_low");
+  f.WriteTObject(projslice_mid, "projslice_mid");
+  f.WriteTObject(projslice_up, "projslice_up");
+
+  TH2JaggedD *projslice_low_merge =
+      jag_projslice.UniformRange("projslice_low_merge", 1, 4, true);
+  TH2JaggedD *projslice_mid_merge =
+      jag_projslice.UniformRange("projslice_mid_merge", 4, 7, true);
+  TH2JaggedD *projslice_up_merge =
+      jag_projslice.UniformRange("projslice_up_merge", 7, 10, true);
+
+  f.WriteTObject(projslice_low_merge, "projslice_low_merge");
+  f.WriteTObject(projslice_mid_merge, "projslice_mid_merge");
+  f.WriteTObject(projslice_up_merge, "projslice_up_merge");
+
+  TH2JaggedD *fail =
+      jag_projslice.UniformRange("projslice_fail_merge", 3, 8, true);
+  assert(!fail);
 
   f.Close();
 }

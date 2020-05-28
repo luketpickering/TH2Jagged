@@ -568,8 +568,9 @@ Double_t TH2Jagged<ST>::Integral(Option_t *option) const {
 }
 
 template <typename ST>
-TH2Jagged<ST> *TH2Jagged<ST>::UniformRange(char const *name, Int_t ubin_from,
-                                           Int_t ubin_to) const {
+TH2Jagged<ST> *
+TH2Jagged<ST>::UniformRange(char const *name, Int_t ubin_from, Int_t ubin_to,
+                            bool AttemptProjectionNonUniform) const {
   TH2Jagged<ST> *out = new TH2Jagged<ST>();
   out->SetName(name);
 
@@ -585,42 +586,67 @@ TH2Jagged<ST> *TH2Jagged<ST>::UniformRange(char const *name, Int_t ubin_from,
   }
 
   for (Int_t ubin = ubin_from; ubin < ubin_to; ++ubin) {
-    out->fNonUniformAxes.push_back(fNonUniformAxes[ubin]);
+
+    if (AttemptProjectionNonUniform && (ubin > ubin_from)) {
+      if (!TH1::CheckEqualAxes(&fNonUniformAxes[ubin],
+                               &fNonUniformAxes[ubin - 1])) {
+        std::cout
+            << "[WARN]: Requested projection of TH2Jagged uniform range ( "
+            << ubin_from << " -- " << ubin_to << "), but non-uniform axes "
+            << (ubin - 1) << " and " << ubin << " are inconsistent."
+            << std::endl;
+        return nullptr;
+      }
+    } else { // the first one gets pushed if attempting projection
+      out->fNonUniformAxes.push_back(fNonUniformAxes[ubin]);
+    }
   }
 
-  if (ubin_from == 0) {
-    // we copied the underflow bin
-  } else if (ubin_from == 1) {
-    // we didn't copy the underflow bin, but we can use it
-    ubin_from -= 1;
-    out->fNonUniformAxes.insert(out->fNonUniformAxes.begin(),
-                                fNonUniformAxes.front());
+  if (AttemptProjectionNonUniform) {
+    // if we just took one bin, then add under/over flow
+    out->fNonUniformAxes.push_back(fNonUniformAxes[ubin_from]);
+    out->fNonUniformAxes.push_back(fNonUniformAxes[ubin_from]);
   } else {
-    // just copy the first axis again
-    out->fNonUniformAxes.insert(out->fNonUniformAxes.begin(),
-                                fNonUniformAxes[ubin_from]);
-  }
+    if (ubin_from == 0) {
+      // we copied the underflow bin
+    } else if (ubin_from == 1) {
+      // we didn't copy the underflow bin, but we can use it
+      ubin_from -= 1;
+      out->fNonUniformAxes.insert(out->fNonUniformAxes.begin(),
+                                  fNonUniformAxes.front());
+    } else {
+      // just copy the first axis again
+      out->fNonUniformAxes.insert(out->fNonUniformAxes.begin(),
+                                  fNonUniformAxes[ubin_from]);
+    }
 
-  if (ubin_to == (fUniformAxis.GetNbins() + 2)) {
-    // we copied the overflow bin
-  } else if (ubin_to == (fUniformAxis.GetNbins() + 1)) {
-    // we didn't copy the overflow bin, but we can use it
-    ubin_to += 1;
-    out->fNonUniformAxes.push_back(fNonUniformAxes.back());
-  } else {
-    // just copy the first axis again
-    out->fNonUniformAxes.push_back(fNonUniformAxes[ubin_to]);
+    if (ubin_to == (fUniformAxis.GetNbins() + 2)) {
+      // we copied the overflow bin
+    } else if (ubin_to == (fUniformAxis.GetNbins() + 1)) {
+      // we didn't copy the overflow bin, but we can use it
+      ubin_to += 1;
+      out->fNonUniformAxes.push_back(fNonUniformAxes.back());
+    } else {
+      // just copy the first axis again
+      out->fNonUniformAxes.push_back(fNonUniformAxes[ubin_to]);
+    }
   }
 
   std::vector<double> UniformBinEdges;
   UniformBinEdges.push_back(
       fUniformAxis.GetBinLowEdge((ubin_from == 0 ? 1 : ubin_from)));
-  for (Int_t ubin = (ubin_from == 0 ? 1 : ubin_from);
-       ubin < (ubin_to == (fUniformAxis.GetNbins() + 2)
-                   ? (fUniformAxis.GetNbins() + 1)
-                   : ubin_to);
-       ++ubin) {
-    UniformBinEdges.push_back(fUniformAxis.GetBinUpEdge(ubin));
+  if (AttemptProjectionNonUniform) {
+    UniformBinEdges.push_back(fUniformAxis.GetBinUpEdge(
+        (ubin_to == (fUniformAxis.GetNbins() + 2) ? (fUniformAxis.GetNbins())
+                                                  : ubin_to - 1)));
+  } else {
+    for (Int_t ubin = (ubin_from == 0 ? 1 : ubin_from);
+         ubin < (ubin_to == (fUniformAxis.GetNbins() + 2)
+                     ? (fUniformAxis.GetNbins() + 1)
+                     : ubin_to);
+         ++ubin) {
+      UniformBinEdges.push_back(fUniformAxis.GetBinUpEdge(ubin));
+    }
   }
 
   out->fUniformAxis = TAxis(UniformBinEdges.size() - 1, UniformBinEdges.data());
@@ -628,9 +654,10 @@ TH2Jagged<ST> *TH2Jagged<ST>::UniformRange(char const *name, Int_t ubin_from,
   out->fXIsUniform = fXIsUniform;
 
   out->ResetUniformAxis();
-  // Added to elide a bug where the copy of the bin mappings was missed, could
-  // be removed in future versions
   out->BuildBinMappings();
+
+  std::fill(out->fBinContent.begin(), out->fBinContent.end(), 0);
+  std::fill(out->fBinSumW2.begin(), out->fBinSumW2.end(), 0);
 
   // Copy all the relevant content
   for (Int_t ubin = ubin_from; ubin < ubin_to; ++ubin) {
@@ -656,21 +683,43 @@ TH2Jagged<ST> *TH2Jagged<ST>::UniformRange(char const *name, Int_t ubin_from,
       // ubin = 3 -> ubin_out = 2
       ubin_out = ubin - (ubin_from - 1);
     }
-    // std::cout << "[INFO]: Slice: " << ubin << " -> " << ubin_out << std::endl;
+    // std::cout << "[INFO]: Slice: " << ubin << " -> " << ubin_out <<
+    // std::endl;
 
     // Keep under/overflow info for non-uniform slices.
     for (Int_t nubin = 0; nubin < (fNonUniformAxes[ubin].GetNbins() + 2);
          ++nubin) {
       Int_t gbin = fBinMappingToFlat.at({ubin, nubin});
-      Int_t out_gbin = out->fBinMappingToFlat.at({ubin_out, nubin});
-      // std::cout << "\t\tNon-Uniform bin: " << nubin << ", Gbin: " << gbin
-      //           << " -> " << out_gbin << "(= " << fBinContent[gbin] << ")" << std::endl;
 
-      out->fBinContent[out_gbin] = fBinContent[gbin];
-      out->fBinError[out_gbin] = fBinError[gbin];
-      out->fBinSumW2[out_gbin] = fBinSumW2[gbin];
+      Int_t out_gbin;
+      if (AttemptProjectionNonUniform) {
+
+        if (ubin == 0) { // put it in the underflow
+          out_gbin = out->fBinMappingToFlat.at({0, nubin});
+
+        } else if (ubin ==
+                   (fUniformAxis.GetNbins() + 1)) { // put it in the overflow
+          out_gbin = out->fBinMappingToFlat.at({2, nubin});
+
+        } else {
+          // If we are in the non flow and we are trying to
+          // project, put it all into the one bin
+          out_gbin = out->fBinMappingToFlat.at({1, nubin});
+        }
+
+      } else {
+        out_gbin = out->fBinMappingToFlat.at({ubin_out, nubin});
+      }
+      // std::cout << "\t\tNon-Uniform bin: " << nubin << ", Gbin: " << gbin
+      //           << " -> " << out_gbin << "(= " << fBinContent[gbin] << ")" <<
+      //           std::endl;
+
+      out->fBinContent[out_gbin] += fBinContent[gbin];
+      out->fBinSumW2[out_gbin] += fBinSumW2[gbin];
     }
   }
+
+  out->RecalculateErrors();
 
   return out;
 }
