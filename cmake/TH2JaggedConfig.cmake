@@ -175,7 +175,7 @@ if(NOT "${CMAKE_PROJECT_NAME} " STREQUAL "TH2Jagged ")
       add_library(TH2Jagged::All INTERFACE IMPORTED)
       set_target_properties(TH2Jagged::All PROPERTIES
           INTERFACE_INCLUDE_DIRECTORIES ${TH2Jagged_INCLUDE_DIR}
-          INTERFACE_LINK_LIBRARIES TH2Jagged::Th2Jagged
+          INTERFACE_LINK_LIBRARIES TH2Jagged::TH2Jagged
       )
   endif()
 endif()
