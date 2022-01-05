@@ -1,41 +1,20 @@
-cmake_minimum_required (VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.14 FATAL_ERROR)
 
 project(TH2Jagged)
+set(TH2Jagged_VERSION 0.9)
 
-include(${CMAKE_SOURCE_DIR}/cmake/StringAndListUtils.cmake)
-
-set(BUILD_DEBUG_MSGS TRUE)
-include(${CMAKE_SOURCE_DIR}/cmake/cmessage.cmake)
-
-set(VERBOSE TRUE)
-
-#Changes default install path to be a subdirectory of the build dir.
-#Can set build dir at configure time with -DCMAKE_INSTALL_PREFIX=/install/path
-if(CMAKE_INSTALL_PREFIX STREQUAL "" OR CMAKE_INSTALL_PREFIX STREQUAL
-  "/usr/local")
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}")
-elseif(NOT DEFINED CMAKE_INSTALL_PREFIX)
+if(NOT DEFINED CMAKE_INSTALL_PREFIX OR 
+    "${CMAKE_INSTALL_PREFIX}x" STREQUAL "x" OR 
+    "${CMAKE_INSTALL_PREFIX}x" STREQUAL "/usr/localx")
   set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/${CMAKE_SYSTEM_NAME}")
 endif()
 
-if(CMAKE_BUILD_TYPE STREQUAL "")
-  set(CMAKE_BUILD_TYPE DEBUG)
-elseif(NOT DEFINED CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE DEBUG)
+if(NOT DEFINED CMAKE_BUILD_TYPE OR 
+    "${CMAKE_BUILD_TYPE}x" STREQUAL "x")
+  set(CMAKE_BUILD_TYPE Release)
 endif()
 
-################################################################################
-#                            Check Dependencies
-################################################################################
-
-SET(EXTRA_CXX_FLAGS)
-SET(EXTRA_LINK_DIRS)
-SET(EXTRA_LIBS)
-
-##################################  ROOT  ######################################
-include(${CMAKE_SOURCE_DIR}/cmake/ROOTSetup.cmake)
-
-################################## COMPILER ####################################
+include(${CMAKE_SOURCE_DIR}/cmake/TH2JaggedConfig.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/c++CompilerSetup.cmake)
 
 add_subdirectory(src)
@@ -49,3 +28,16 @@ configure_file(cmake/setup.sh.in
 install(FILES
   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/setup.sh" DESTINATION
   ${CMAKE_INSTALL_PREFIX})
+
+install(FILES
+  ${CMAKE_SOURCE_DIR}/cmake/TH2JaggedConfig.cmake DESTINATION
+  ${CMAKE_INSTALL_PREFIX}/cmake)
+
+install(EXPORT th2jagged-targets
+  FILE TH2JaggedTargets.cmake
+  NAMESPACE TH2Jagged::
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/cmake
+)
+
+FILE(WRITE ${CMAKE_INSTALL_PREFIX}/cmake/TH2JaggedVersion.cmake 
+  "SET(TH2Jagged_VERSION ${TH2Jagged_VERSION})\n" )

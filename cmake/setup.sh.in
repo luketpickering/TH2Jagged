@@ -42,11 +42,11 @@ function add_to_LD_LIBRARY_PATH () {
 }
 
 
-export TH2JAGGEDROOT="@CMAKE_INSTALL_PREFIX@"
+export TH2Jagged_ROOT="@CMAKE_INSTALL_PREFIX@"
 
-add_to_LD_LIBRARY_PATH "${TH2JAGGEDROOT}/lib"
+add_to_LD_LIBRARY_PATH "${TH2Jagged_ROOT}/lib"
 
-if [ ! "${ROOTSYS}" ]; then
+if [ -z "${ROOTSYS}" ] && [ -e "@CMAKE_ROOTSYS@/bin/thisroot.sh" ]; then
   echo "[INFO]: Sourcing ROOT from: @CMAKE_ROOTSYS@"
   source "@CMAKE_ROOTSYS@/bin/thisroot.sh"
 fi

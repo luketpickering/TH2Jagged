@@ -1,38 +1,25 @@
-include_directories(${INCDIRS})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-#rootcling refuses to generate most code if given a header not in the local directory
-configure_file(TH2Jagged.h ${CMAKE_CURRENT_BINARY_DIR}/TH2Jagged.h COPYONLY)
-configure_file(TH2JaggedLinkdef.h ${CMAKE_CURRENT_BINARY_DIR}/TH2JaggedLinkdef.h COPYONLY)
-
-add_custom_command(
-  OUTPUT "TH2JaggedDict.cxx" "TH2JaggedDict_rdict.pcm" "TH2Jagged.rootmap"
-  COMMAND rootcling
-  ARGS -f TH2JaggedDict.cxx -rmf TH2Jagged.rootmap TH2Jagged.h TH2JaggedLinkdef.h
-  DEPENDS
-    ${CMAKE_CURRENT_BINARY_DIR}/TH2Jagged.h
-    ${CMAKE_CURRENT_BINARY_DIR}/TH2JaggedLinkdef.h)
+ROOT_GENERATE_DICTIONARY(TH2JaggedDict
+            ${CMAKE_CURRENT_SOURCE_DIR}/TH2Jagged.h
+            LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/TH2JaggedLinkDef.h
+            OPTIONS -p)
 
 add_library(TH2Jagged SHARED
   TH2Jagged.cxx
   TH2JaggedDict.cxx
 )
 
-install(TARGETS TH2Jagged DESTINATION lib)
+set_target_properties(TH2Jagged PROPERTIES 
+  PUBLIC_HEADER TH2Jagged.h
+  EXPORT_NAME TH2Jagged)
+
+target_link_libraries(TH2Jagged ROOT::ROOT)
+
+install(TARGETS TH2Jagged 
+    EXPORT th2jagged-targets
+    LIBRARY DESTINATION lib/
+    PUBLIC_HEADER DESTINATION include/)
+
 install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/TH2JaggedDict_rdict.pcm
-    ${CMAKE_CURRENT_BINARY_DIR}/TH2Jagged.rootmap
-  DESTINATION lib)
-install(FILES TH2Jagged.h DESTINATION include)
-
-if(NOT "${CMAKE_LINK_FLAGS} " STREQUAL " ")
-  set_target_properties(TH2Jagged PROPERTIES LINK_FLAGS ${CMAKE_LINK_FLAGS})
-endif()
-
-if(NOT "${TH2J_LINK_DIRS} " STREQUAL " ")
-  target_link_libraries(TH2Jagged ${TH2J_LINK_DIRS})
-endif()
-
-if(NOT "${TH2J_DEPEND_LIBS} " STREQUAL " ")
-  target_link_libraries(TH2Jagged ${TH2J_DEPEND_LIBS})
-endif()
+    ${CMAKE_CURRENT_BINARY_DIR}/libTH2JaggedDict_rdict.pcm
+    ${CMAKE_CURRENT_BINARY_DIR}/libTH2JaggedDict.rootmap
+    DESTINATION lib/)
