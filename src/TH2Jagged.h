@@ -235,17 +235,6 @@ public:
   ClassDef(TH2Jagged, 1);
 };
 
-// This is required to get rootcling to generate the streamer information, but
-// causes clang to emit errors due to template specialization after
-// instantiation when compiling the dictionary so must only be visible to
-// rootcling and not the compiler
-#ifdef __CLING__
-template class TH2Jagged<double>;
-template class TH2Jagged<float>;
-template class TH2Jagged<int>;
-template class TH2Jagged<char>;
-#endif
-
 // These are the only specializations that will be built for, for others, add
 // them above, to the linkdef and to the explicit specializations in the
 // implementation file

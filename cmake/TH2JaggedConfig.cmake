@@ -96,26 +96,11 @@ list(REMOVE_ITEM ROOT_CXX_FLAGS "-fPIC")
 if(NOT TARGET ROOT::ROOT)
   add_library(ROOT::ROOT INTERFACE IMPORTED)
 
-  LIST(APPEND ROOT_LIB_NAMES Core)
-
-  if(ROOT_VERSION VERSION_LESS 6)
-    LIST(APPEND ROOT_LIB_NAMES Cint)
-  endif()
-
   LIST(APPEND ROOT_LIB_NAMES 
+    Core
     RIO
-    Net
     Hist
-    Graf
-    Graf3d
-    Gpad
-    Tree
-    Rint
-    Postscript
-    Matrix
-    Physics
-    MathCore
-    Thread)
+    MathCore)
 
   set(ROOT_LIBRARIES)
   foreach(LN ${ROOT_LIB_NAMES})

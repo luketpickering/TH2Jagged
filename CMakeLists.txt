@@ -20,6 +20,8 @@ include(${CMAKE_SOURCE_DIR}/cmake/c++CompilerSetup.cmake)
 add_subdirectory(src)
 
 if(DEFINED DO_TEST AND NOT "${DO_TEST} " STREQUAL " ")
+  add_compile_definitions(NDEBUG)
+  add_compile_options(-Wno-error=unused-but-set-variable -Wno-error=unused-variable)
   add_subdirectory(test)
 endif()
 
