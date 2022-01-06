@@ -66,34 +66,34 @@ if(NOT COMMAND cmessage)
 endif()
 
 ##################################  ROOT  ######################################
-find_package_or_dependency(ROOT REQUIRED)
-include(${ROOT_USE_FILE})
+if(NOT TARGET ROOT::ROOT) # Only ROOT if we really need to
+  find_package_or_dependency(ROOT REQUIRED)
+  include(${ROOT_USE_FILE})
 
-STRING(STRIP ROOT_CXX_FLAGS ${ROOT_CXX_FLAGS})
-STRING(REPLACE " " ";" ROOT_CXX_FLAGS ${ROOT_CXX_FLAGS})
+  STRING(STRIP ROOT_CXX_FLAGS ${ROOT_CXX_FLAGS})
+  STRING(REPLACE " " ";" ROOT_CXX_FLAGS ${ROOT_CXX_FLAGS})
 
-if("${CMAKE_PROJECT_NAME} " STREQUAL "TH2Jagged ")
-  list (FIND ROOT_CXX_FLAGS "-std=c++11" CPP11_INDEX)
-  list (FIND ROOT_CXX_FLAGS "-std=c++14" CPP14_INDEX)
-  list (FIND ROOT_CXX_FLAGS "-std=c++17" CPP17_INDEX)
-  list (FIND ROOT_CXX_FLAGS "-std=c++20" CPP20_INDEX)
-  if (${CPP17_INDEX} GREATER -1)
-    SET(CMAKE_CXX_STANDARD 17)
-  elseif (${CPP20_INDEX} GREATER -1)
-    SET(CMAKE_CXX_STANDARD 20)
-  else()
-    SET(CMAKE_CXX_STANDARD 14)
+  if("${CMAKE_PROJECT_NAME} " STREQUAL "TH2Jagged ")
+    list (FIND ROOT_CXX_FLAGS "-std=c++11" CPP11_INDEX)
+    list (FIND ROOT_CXX_FLAGS "-std=c++14" CPP14_INDEX)
+    list (FIND ROOT_CXX_FLAGS "-std=c++17" CPP17_INDEX)
+    list (FIND ROOT_CXX_FLAGS "-std=c++20" CPP20_INDEX)
+    if (${CPP17_INDEX} GREATER -1)
+      SET(CMAKE_CXX_STANDARD 17)
+    elseif (${CPP20_INDEX} GREATER -1)
+      SET(CMAKE_CXX_STANDARD 20)
+    else()
+      SET(CMAKE_CXX_STANDARD 14)
+    endif()
   endif()
-endif()
-list(FILTER ROOT_CXX_FLAGS EXCLUDE REGEX "-std=.*")
+  list(FILTER ROOT_CXX_FLAGS EXCLUDE REGEX "-std=.*")
 
-execute_process (COMMAND root-config
-  --version OUTPUT_VARIABLE ROOT_CONFIG_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process (COMMAND root-config
+    --version OUTPUT_VARIABLE ROOT_CONFIG_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-#We should let CMake set this
-list(REMOVE_ITEM ROOT_CXX_FLAGS "-fPIC")
+  #We should let CMake set this
+  list(REMOVE_ITEM ROOT_CXX_FLAGS "-fPIC")
 
-if(NOT TARGET ROOT::ROOT)
   add_library(ROOT::ROOT INTERFACE IMPORTED)
 
   LIST(APPEND ROOT_LIB_NAMES 
