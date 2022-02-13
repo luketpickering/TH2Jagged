@@ -133,7 +133,7 @@ if(NOT "${CMAKE_PROJECT_NAME} " STREQUAL "TH2Jagged ")
   )
 
   find_path(TH2Jagged_LIB_DIR
-    NAMES libTH2Jagged.so
+    NAMES libTH2Jagged.so libTH2Jagged.dylib
     PATHS ${TH2Jagged_CMAKE_DIR}/../lib
   )
 
