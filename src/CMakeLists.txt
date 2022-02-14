@@ -9,7 +9,6 @@ set_target_properties(TH2Jagged PROPERTIES
 target_link_libraries(TH2Jagged ROOT::ROOT)
 
 configure_file(TH2Jagged.h ${CMAKE_CURRENT_BINARY_DIR}/TH2Jagged.h COPYONLY)
-configure_file(TH2JaggedLinkdef.h ${CMAKE_CURRENT_BINARY_DIR}/TH2JaggedLinkdef.h COPYONLY)
 
 ROOT_GENERATE_DICTIONARY(TH2Jagged_dict
             TH2Jagged.h
